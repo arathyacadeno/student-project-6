@@ -1,20 +1,40 @@
 {% extends "manage/base.html" %}
 {% block admin %}
-<div class="page-head"><h2>{% if obj %}Edit{% else %}Add{% endif %} · {{ title }}</h2></div>
-<form class="card" method="post" enctype="multipart/form-data" style="max-width:680px">{% csrf_token %}{{ form.non_field_errors }}
-{% for f in form %}
-<div class="field">
-  <label for="{{ f.id_for_label }}">{{ f.label }}</label>
-  {% if f.name == 'image' and obj and obj.image %}
-    <div style="margin-bottom:10px">
-      <img src="{{ obj.image.url }}" alt="{{ obj }}" style="max-height:140px;border-radius:10px;border:1px solid var(--line);display:block;margin-bottom:6px">
-      <span class="small muted">Current image</span>
-    </div>
-  {% endif %}
-  {{ f }}
-  {{ f.errors }}
-  {% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}
+<div class="page-head">
+  <h2>{% if obj %}Edit{% else %}Add{% endif %} · {{ title }}</h2>
+  <p>Fill in the details below. Required fields are marked automatically.</p>
 </div>
-{% endfor %}
-<div class="row"><button type="submit">Save</button><a class="btn ghost" href="{% url 'admin_list' key %}">Cancel</a></div></form>
+<form class="card form-card" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+    <div class="msg error mb">{{ form.non_field_errors }}</div>
+  {% endif %}
+  <div class="form-grid">
+    {% for f in form %}
+      <div class="field {% if f.name in 'description attractions includes' %}field-full{% endif %} {% if f.field.widget.input_type == 'checkbox' %}field-checkbox{% endif %}">
+        {% if f.field.widget.input_type == 'checkbox' %}
+          <label class="checkbox-box" for="{{ f.id_for_label }}">
+            {{ f }}
+            <span class="checkbox-title">{{ f.label }}</span>
+          </label>
+        {% else %}
+          <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+          {% if f.name == 'image' and obj and obj.image %}
+            <div class="current-img-wrap">
+              <img src="{{ obj.image.url }}" alt="{{ obj }}" class="current-img">
+              <span class="small muted">Current image</span>
+            </div>
+          {% endif %}
+          {{ f }}
+        {% endif %}
+        {{ f.errors }}
+        {% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  <div class="row form-actions mt">
+    <button type="submit">Save</button>
+    <a class="btn ghost" href="{% url 'admin_list' key %}">Cancel</a>
+  </div>
+</form>
 {% endblock %}
