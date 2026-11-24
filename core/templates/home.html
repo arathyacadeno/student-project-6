@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load tm_extras %}
-{% block content %}
-</div></main>
+
+{% block hero %}
 <section class="hero"><div class="wrap">
   <div>
     <div class="hero-badge"><span class="badge-dot"></span> Next-Gen AI Travel Planning</div>
@@ -18,24 +18,26 @@
     <li><b>Day 4-5 · Munnar</b><span class="leg">3 h 40 m by road</span> <span>· Tea gardens at sunrise</span></li>
   </ol>
 </div></section>
-<main><div class="wrap">
-  <div class="page-head mt"><h2>Popular in Kerala</h2><p>Top-rated places, with typical daily costs per person.</p></div>
-  <div class="grid g3">{% for d in featured %}{% include "_dcard.html" %}{% endfor %}</div>
-  <div class="grid g3 mt">
-    <div class="feature-card">
-      <div class="feature-icon blue">🧠</div>
-      <h3>Recommendations that learn</h3>
-      <p class="muted">A K-Nearest Neighbours model compares your interests and past trips with every destination.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon sky">✨</div>
-      <h3>Itineraries from Gemini</h3>
-      <p class="muted">Share dates, budget and interests. Get a day-wise plan with an estimated cost.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon amber">📋</div>
-      <h3>Bookings in one list</h3>
-      <p class="muted">Book packages, track status and keep your trip history together.</p>
-    </div>
+{% endblock %}
+
+{% block content %}
+<div class="page-head mt"><h2>Popular in Kerala</h2><p>Top-rated places, with typical daily costs per person.</p></div>
+<div class="grid g3">{% for d in featured %}{% include "_dcard.html" %}{% endfor %}</div>
+<div class="grid g3 mt">
+  <div class="feature-card">
+    <div class="feature-icon blue">🧠</div>
+    <h3>Recommendations that learn</h3>
+    <p class="muted">A K-Nearest Neighbours model compares your interests and past trips with every destination.</p>
   </div>
+  <div class="feature-card">
+    <div class="feature-icon sky">✨</div>
+    <h3>Itineraries from Gemini</h3>
+    <p class="muted">Share dates, budget and interests. Get a day-wise plan with an estimated cost.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon amber">📋</div>
+    <h3>Bookings in one list</h3>
+    <p class="muted">Book packages, track status and keep your trip history together.</p>
+  </div>
+</div>
 {% endblock %}

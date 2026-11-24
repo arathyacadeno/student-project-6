@@ -22,6 +22,7 @@
     <a class="btn gold small" href="{% url 'register' %}">Sign up</a>
   {% endif %}
 </div></header>
+{% block hero %}{% endblock %}
 <main><div class="wrap">
   {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
   {% block content %}{% endblock %}
