@@ -1,7 +1,456 @@
 {% extends "base.html" %}
+{% load tm_extras %}
+
+{% block title %}Book a Trip · Beyond Destination AI{% endblock %}
+
 {% block content %}
-<div class="page-head"><h2>Book a trip</h2><p>We estimate the cost from the package or the destination's daily cost. An admin confirms your request.</p></div>
-<form class="card" method="post" style="max-width:640px">{% csrf_token %}{{ form.non_field_errors }}
-{% for f in form %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}{{ f.errors }}</div>{% endfor %}
-<button type="submit">Request booking</button></form>
+<div class="booking-page-header">
+  <div class="page-head" style="margin-bottom:0;">
+    <h2>Book a trip</h2>
+    <p>We estimate the cost from the package or the destination's daily cost. An admin confirms your request.</p>
+  </div>
+</div>
+
+<div class="booking-layout-container">
+  <!-- Left Column: Booking Form -->
+  <div class="booking-form-col">
+    <form class="card booking-main-card" method="post" id="bookingForm" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="msg error" style="margin-bottom:18px;">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="booking-form-section-title">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <span>Destination & Accommodation</span>
+      </div>
+
+      <div class="field">
+        <label for="{{ form.destination.id_for_label }}">Destination *</label>
+        {{ form.destination }}
+        {{ form.destination.errors }}
+      </div>
+
+      <div class="field">
+        <label for="{{ form.package.id_for_label }}">
+          Tour Package <span class="muted small" style="font-weight:400;">(Optional – includes curated activities & itinerary)</span>
+        </label>
+        {{ form.package }}
+        {{ form.package.errors }}
+      </div>
+
+      <div class="field">
+        <label for="{{ form.hotel.id_for_label }}">
+          Hotel / Stay <span class="muted small" style="font-weight:400;">(Optional – select preferred accommodation)</span>
+        </label>
+        {{ form.hotel }}
+        {{ form.hotel.errors }}
+      </div>
+
+      <div class="booking-form-section-title" style="margin-top:24px;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span>Dates & Party Details</span>
+      </div>
+
+      <div class="booking-form-dates-row">
+        <div class="field">
+          <label for="{{ form.start_date.id_for_label }}">Start date *</label>
+          {{ form.start_date }}
+          {{ form.start_date.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.end_date.id_for_label }}">End date *</label>
+          {{ form.end_date }}
+          {{ form.end_date.errors }}
+        </div>
+      </div>
+
+      <div class="booking-form-dates-row">
+        <div class="field">
+          <label for="{{ form.travellers.id_for_label }}">Travellers *</label>
+          {{ form.travellers }}
+          {{ form.travellers.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.budget.id_for_label }}">
+            Target Budget (₹) <span class="muted small" style="font-weight:400;">(Optional)</span>
+          </label>
+          {{ form.budget }}
+          {{ form.budget.errors }}
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="{{ form.notes.id_for_label }}">
+          Notes & Preferences <span class="muted small" style="font-weight:400;">(Optional)</span>
+        </label>
+        {{ form.notes }}
+        {{ form.notes.errors }}
+      </div>
+
+      <button type="submit" class="btn-booking-submit">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Request Booking</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Right Column: Live Price Calculation Sidebar -->
+  <div class="booking-calc-col">
+    <div class="booking-calc-card">
+      <div class="calc-card-header">
+        <div class="calc-header-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="18" rx="2"></rect>
+            <line x1="2" y1="8" x2="22" y2="8"></line>
+            <line x1="8" y1="21" x2="8" y2="8"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 class="calc-card-title">Estimated Cost Calculation</h3>
+          <p class="calc-card-subtitle">Real-time breakdown based on your choices</p>
+        </div>
+      </div>
+
+      <!-- Selected Destination & Plan Preview -->
+      <div class="calc-destination-preview" id="calcDestPreview">
+        <div class="calc-dest-img-wrap">
+          <img id="calcDestImg" src="/static/img/default_destination.jpg" alt="Selected Destination" class="calc-dest-img">
+        </div>
+        <div class="calc-dest-info">
+          <h4 id="calcDestName" class="calc-dest-name">Select Destination</h4>
+          <p id="calcDestLoc" class="calc-dest-loc">Kerala, India</p>
+          <div id="calcPlanBadge" class="calc-plan-badge" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Key Trip Specs Pills -->
+      <div class="calc-specs-row">
+        <div class="calc-spec-pill">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span id="calcDurationText">1 Day</span>
+        </div>
+        <div class="calc-spec-pill">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span id="calcTravellersText">1 Traveller</span>
+        </div>
+        <div class="calc-spec-pill" id="calcRoomsPill">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 19h20M4 15l2-6h12l2 6H4zM12 4v5"></path></svg>
+          <span id="calcRoomsText">1 Room</span>
+        </div>
+      </div>
+
+      <div class="calc-divider"></div>
+
+      <!-- Line-by-line Cost Items -->
+      <div class="calc-line-items">
+        <!-- Base Plan Item -->
+        <div class="calc-line-item">
+          <div class="calc-item-desc">
+            <span id="calcBaseTitle" class="calc-item-name">Destination Daily Cost</span>
+            <span id="calcBaseFormula" class="calc-item-formula">Select destination or package</span>
+          </div>
+          <div id="calcBaseAmount" class="calc-item-val">₹0</div>
+        </div>
+
+        <!-- Hotel Item -->
+        <div class="calc-line-item" id="calcHotelItem" style="display:none;">
+          <div class="calc-item-desc">
+            <span id="calcHotelTitle" class="calc-item-name">Hotel Accommodation</span>
+            <span id="calcHotelFormula" class="calc-item-formula">₹0/night</span>
+          </div>
+          <div id="calcHotelAmount" class="calc-item-val">₹0</div>
+        </div>
+
+        <!-- Taxes & Booking Fee -->
+        <div class="calc-line-item">
+          <div class="calc-item-desc">
+            <span class="calc-item-name">Booking & Convenience Fee</span>
+            <span class="calc-item-formula">Zero platform markup</span>
+          </div>
+          <div class="calc-free-badge">FREE</div>
+        </div>
+      </div>
+
+      <div class="calc-divider"></div>
+
+      <!-- Grand Total -->
+      <div class="calc-total-row">
+        <div>
+          <span class="calc-total-label">Estimated Total</span>
+          <span class="calc-total-sub">Inclusive of selected options</span>
+        </div>
+        <div class="calc-total-price-wrap">
+          <span id="calcGrandTotal" class="calc-grand-total">₹0</span>
+        </div>
+      </div>
+
+      <!-- Target Budget Comparison -->
+      <div id="calcBudgetComparison" class="calc-budget-box" style="display:none;"></div>
+
+      <!-- Safe Booking Guarantee Notice -->
+      <div class="calc-guarantee-box">
+        <div class="calc-guarantee-item">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#168fe5" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span><strong>No instant payment:</strong> Review and verify details now; payment is requested only after admin confirmation.</span>
+        </div>
+        <div class="calc-guarantee-item">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span>Transparent pricing matched directly to actual Kerala tariffs.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const destinations = {{ destinations_json|safe }};
+    const packages = {{ packages_json|safe }};
+    const hotels = {{ hotels_json|safe }};
+
+    const destSelect = document.getElementById('id_destination');
+    const pkgSelect = document.getElementById('id_package');
+    const hotelSelect = document.getElementById('id_hotel');
+    const startDateInput = document.getElementById('id_start_date');
+    const endDateInput = document.getElementById('id_end_date');
+    const travellersInput = document.getElementById('id_travellers');
+    const budgetInput = document.getElementById('id_budget');
+
+    const calcDestImg = document.getElementById('calcDestImg');
+    const calcDestName = document.getElementById('calcDestName');
+    const calcDestLoc = document.getElementById('calcDestLoc');
+    const calcPlanBadge = document.getElementById('calcPlanBadge');
+
+    const calcDurationText = document.getElementById('calcDurationText');
+    const calcTravellersText = document.getElementById('calcTravellersText');
+    const calcRoomsPill = document.getElementById('calcRoomsPill');
+    const calcRoomsText = document.getElementById('calcRoomsText');
+
+    const calcBaseTitle = document.getElementById('calcBaseTitle');
+    const calcBaseFormula = document.getElementById('calcBaseFormula');
+    const calcBaseAmount = document.getElementById('calcBaseAmount');
+
+    const calcHotelItem = document.getElementById('calcHotelItem');
+    const calcHotelTitle = document.getElementById('calcHotelTitle');
+    const calcHotelFormula = document.getElementById('calcHotelFormula');
+    const calcHotelAmount = document.getElementById('calcHotelAmount');
+
+    const calcGrandTotal = document.getElementById('calcGrandTotal');
+    const calcBudgetComparison = document.getElementById('calcBudgetComparison');
+
+    // Dynamic Filter for Packages & Hotels based on Destination
+    function filterDropdowns() {
+      const selectedDestId = destSelect ? destSelect.value : '';
+
+      // Filter Packages
+      if (pkgSelect) {
+        Array.from(pkgSelect.options).forEach(opt => {
+          if (!opt.value) {
+            opt.style.display = '';
+            return;
+          }
+          const pkg = packages[opt.value];
+          if (!pkg) return;
+          if (!selectedDestId || pkg.destination_id === selectedDestId) {
+            opt.style.display = '';
+          } else {
+            opt.style.display = 'none';
+          }
+        });
+        // If current package doesn't match selected destination, clear it
+        if (pkgSelect.value && packages[pkgSelect.value] && selectedDestId && packages[pkgSelect.value].destination_id !== selectedDestId) {
+          pkgSelect.value = '';
+        }
+      }
+
+      // Filter Hotels
+      if (hotelSelect) {
+        Array.from(hotelSelect.options).forEach(opt => {
+          if (!opt.value) {
+            opt.style.display = '';
+            return;
+          }
+          const hotel = hotels[opt.value];
+          if (!hotel) return;
+          if (!selectedDestId || hotel.destination_id === selectedDestId) {
+            opt.style.display = '';
+          } else {
+            opt.style.display = 'none';
+          }
+        });
+        // If current hotel doesn't match selected destination, clear it
+        if (hotelSelect.value && hotels[hotelSelect.value] && selectedDestId && hotels[hotelSelect.value].destination_id !== selectedDestId) {
+          hotelSelect.value = '';
+        }
+      }
+    }
+
+    // When Package is selected, sync destination & dates
+    function handlePackageChange() {
+      const pkgId = pkgSelect ? pkgSelect.value : '';
+      if (pkgId && packages[pkgId]) {
+        const pkg = packages[pkgId];
+        if (destSelect && pkg.destination_id && destSelect.value !== pkg.destination_id) {
+          destSelect.value = pkg.destination_id;
+          filterDropdowns();
+        }
+        // Auto adjust end date if start date is selected and end date is empty or matches default
+        if (startDateInput && startDateInput.value && pkg.days > 0) {
+          const s = new Date(startDateInput.value);
+          if (!isNaN(s)) {
+            const e = new Date(s);
+            e.setDate(e.getDate() + (pkg.days - 1));
+            const yyyy = e.getFullYear();
+            const mm = String(e.getMonth() + 1).padStart(2, '0');
+            const dd = String(e.getDate()).padStart(2, '0');
+            endDateInput.value = `${yyyy}-${mm}-${dd}`;
+          }
+        }
+      }
+      recalculate();
+    }
+
+    function recalculate() {
+      const destId = destSelect ? destSelect.value : '';
+      const pkgId = pkgSelect ? pkgSelect.value : '';
+      const hotelId = hotelSelect ? hotelSelect.value : '';
+      const sDateStr = startDateInput ? startDateInput.value : '';
+      const eDateStr = endDateInput ? endDateInput.value : '';
+      let travellers = travellersInput ? parseInt(travellersInput.value, 10) : 1;
+      if (isNaN(travellers) || travellers < 1) travellers = 1;
+      const budget = budgetInput ? parseInt(budgetInput.value, 10) : 0;
+
+      const dest = destinations[destId] || null;
+      const pkg = packages[pkgId] || null;
+      const hotel = hotels[hotelId] || null;
+
+      // Compute Days & Nights
+      let days = 1;
+      if (sDateStr && eDateStr) {
+        const s = new Date(sDateStr);
+        const e = new Date(eDateStr);
+        if (!isNaN(s) && !isNaN(e) && e >= s) {
+          const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24));
+          days = Math.max(diffDays + 1, 1);
+        }
+      } else if (pkg && pkg.days) {
+        days = pkg.days;
+      }
+      const nights = Math.max(days - 1, 1);
+      const rooms = Math.ceil(travellers / 2);
+
+      // Destination & Plan Preview
+      if (dest) {
+        calcDestImg.src = dest.image_url || '/static/img/default_destination.jpg';
+        calcDestName.textContent = dest.name;
+        calcDestLoc.textContent = `${dest.district}, ${dest.state}`;
+      } else {
+        calcDestImg.src = '/static/img/default_destination.jpg';
+        calcDestName.textContent = 'Select a Destination';
+        calcDestLoc.textContent = 'Kerala, India';
+      }
+
+      // Specs Row
+      calcDurationText.textContent = `${days} Day${days > 1 ? 's' : ''}, ${nights} Night${nights > 1 ? 's' : ''}`;
+      calcTravellersText.textContent = `${travellers} Traveller${travellers > 1 ? 's' : ''}`;
+      calcRoomsText.textContent = `${rooms} Room${rooms > 1 ? 's' : ''} (${travellers} pax)`;
+
+      // Base Calculation: Package vs Destination Daily Cost
+      let baseCost = 0;
+      if (pkg) {
+        baseCost = pkg.price * travellers;
+        calcBaseTitle.textContent = `Package: ${pkg.title}`;
+        calcBaseFormula.textContent = `₹${pkg.price.toLocaleString('en-IN')} × ${travellers} traveller${travellers > 1 ? 's' : ''}`;
+        calcBaseAmount.textContent = `₹${baseCost.toLocaleString('en-IN')}`;
+        calcPlanBadge.style.display = 'inline-block';
+        calcPlanBadge.textContent = `Curated Package (${pkg.days} Days)`;
+      } else if (dest) {
+        baseCost = dest.avg_daily_cost * travellers * days;
+        calcBaseTitle.textContent = `Daily Cost: ${dest.name}`;
+        calcBaseFormula.textContent = `₹${dest.avg_daily_cost.toLocaleString('en-IN')}/day × ${travellers} traveller${travellers > 1 ? 's' : ''} × ${days} day${days > 1 ? 's' : ''}`;
+        calcBaseAmount.textContent = `₹${baseCost.toLocaleString('en-IN')}`;
+        calcPlanBadge.style.display = 'inline-block';
+        calcPlanBadge.textContent = `Custom Daily Plan`;
+      } else {
+        calcBaseTitle.textContent = 'Destination / Package';
+        calcBaseFormula.textContent = 'Select a destination or package above';
+        calcBaseAmount.textContent = '₹0';
+        calcPlanBadge.style.display = 'none';
+      }
+
+      // Hotel Calculation
+      let hotelCost = 0;
+      if (hotel) {
+        hotelCost = hotel.price_per_night * rooms * nights;
+        calcHotelItem.style.display = 'flex';
+        calcHotelTitle.textContent = `Stay: ${hotel.name}`;
+        calcHotelFormula.textContent = `₹${hotel.price_per_night.toLocaleString('en-IN')}/night × ${rooms} room${rooms > 1 ? 's' : ''} × ${nights} night${nights > 1 ? 's' : ''}`;
+        calcHotelAmount.textContent = `₹${hotelCost.toLocaleString('en-IN')}`;
+        calcRoomsPill.style.display = 'inline-flex';
+      } else {
+        calcHotelItem.style.display = 'none';
+        calcRoomsPill.style.display = 'none';
+      }
+
+      // Grand Total
+      const grandTotal = baseCost + hotelCost;
+      calcGrandTotal.textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+
+      // Budget Comparison
+      if (budget > 0 && grandTotal > 0) {
+        calcBudgetComparison.style.display = 'flex';
+        if (grandTotal <= budget) {
+          const savings = budget - grandTotal;
+          calcBudgetComparison.className = 'calc-budget-box within';
+          calcBudgetComparison.innerHTML = `<span>✓</span> <span><strong>Within your budget:</strong> ₹${savings.toLocaleString('en-IN')} under your target of ₹${budget.toLocaleString('en-IN')}.</span>`;
+        } else {
+          const excess = grandTotal - budget;
+          calcBudgetComparison.className = 'calc-budget-box exceeded';
+          calcBudgetComparison.innerHTML = `<span>⚠️</span> <span><strong>Above target budget:</strong> ₹${excess.toLocaleString('en-IN')} over your target of ₹${budget.toLocaleString('en-IN')}.</span>`;
+        }
+      } else {
+        calcBudgetComparison.style.display = 'none';
+      }
+    }
+
+    // Attach Event Listeners
+    if (destSelect) {
+      destSelect.addEventListener('change', function () {
+        filterDropdowns();
+        recalculate();
+      });
+    }
+
+    if (pkgSelect) {
+      pkgSelect.addEventListener('change', handlePackageChange);
+    }
+
+    if (hotelSelect) {
+      hotelSelect.addEventListener('change', recalculate);
+    }
+
+    [startDateInput, endDateInput, travellersInput, budgetInput].forEach(el => {
+      if (el) {
+        el.addEventListener('input', recalculate);
+        el.addEventListener('change', recalculate);
+      }
+    });
+
+    // Initialize on page load
+    filterDropdowns();
+    recalculate();
+  })();
+</script>
 {% endblock %}
