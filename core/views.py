@@ -1,5 +1,8 @@
+import json
 import math
-from datetime import date
+import os
+import uuid
+from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth import login
@@ -160,6 +163,14 @@ def book(request):
         pkg = Package.objects.filter(pk=request.GET["package"]).first()
         if pkg:
             initial.update(package=pkg.pk, destination=pkg.destination_id)
+            if pkg.days:
+                initial.setdefault("start_date", date.today())
+                initial.setdefault("end_date", initial["start_date"] + timedelta(days=pkg.days - 1))
+    if "start_date" not in initial:
+        initial["start_date"] = date.today()
+    if "end_date" not in initial:
+        initial["end_date"] = initial["start_date"] + timedelta(days=2)
+
     form = BookingForm(request.POST or None, initial=initial)
     if request.method == "POST" and form.is_valid():
         b = form.save(commit=False)
@@ -169,7 +180,46 @@ def book(request):
         warn = " Note: the estimate is above your budget." if b.budget and b.total_cost > b.budget else ""
         messages.success(request, f"Booking requested. Estimated cost ₹{b.total_cost:,}.{warn}")
         return redirect("my_bookings")
-    return render(request, "book.html", {"form": form})
+
+    destinations_data = {
+        str(d.pk): {
+            "id": d.pk,
+            "name": d.name,
+            "district": d.district,
+            "state": d.state or "Kerala",
+            "avg_daily_cost": d.avg_daily_cost,
+            "image_url": d.image.url if d.image else d.image_url,
+        }
+        for d in Destination.objects.all()
+    }
+    packages_data = {
+        str(p.pk): {
+            "id": p.pk,
+            "title": p.title,
+            "price": p.price,
+            "days": p.days,
+            "destination_id": str(p.destination_id),
+            "includes": p.includes,
+        }
+        for p in Package.objects.all()
+    }
+    hotels_data = {
+        str(h.pk): {
+            "id": h.pk,
+            "name": h.name,
+            "price_per_night": h.price_per_night,
+            "destination_id": str(h.destination_id),
+            "eco_friendly": h.eco_friendly,
+        }
+        for h in Hotel.objects.all()
+    }
+
+    return render(request, "book.html", {
+        "form": form,
+        "destinations_json": json.dumps(destinations_data),
+        "packages_json": json.dumps(packages_data),
+        "hotels_json": json.dumps(hotels_data),
+    })
 
 
 @login_required
@@ -395,7 +445,15 @@ def admin_edit(request, key, pk=None):
             if fallback:
                 post_data["attractions"] = fallback
 
-    form = Form(post_data or None, request.FILES or None, instance=obj)
+    # Shorten/sanitize overly long uploaded filenames to prevent Django max_length validation errors
+    files = request.FILES.copy() if request.FILES else None
+    if files and "image" in files:
+        f = files["image"]
+        if len(f.name) > 60:
+            base, ext = os.path.splitext(f.name)
+            f.name = f"{base[:35]}_{uuid.uuid4().hex[:6]}{ext.lower()[:6]}"
+
+    form = Form(post_data or None, files or None, instance=obj)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, f"{title[:-1] if title.endswith('s') else title} saved.")
@@ -483,3 +541,8 @@ def admin_train(request):
     except Exception as exc:
         messages.error(request, str(exc))
     return redirect("admin_dashboard")
+
+
+def wishlist_view(request):
+    destinations = Destination.objects.select_related("category").all()
+    return render(request, "wishlist.html", {"destinations": destinations})

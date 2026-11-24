@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load tm_extras %}
+
+{% block title %}My Wishlist · Beyond Destination AI{% endblock %}
+
+{% block content %}
+<div class="wishlist-page-header">
+  <div class="wishlist-page-title-row">
+    <div>
+      <h1 class="wishlist-page-title">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="#ff385c" stroke="#ff385c" stroke-width="1.8">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        <span>My Wishlist</span>
+      </h1>
+      <p class="wishlist-page-subtitle">Your saved Kerala destinations ready for booking and trip planning.</p>
+    </div>
+    <div>
+      <span id="wishlistCountPill" class="wishlist-count-pill">0 Saved</span>
+    </div>
+  </div>
+</div>
+
+<div id="wishlistGridContainer">
+  <!-- Dynamic Grid of Saved Items -->
+  <div id="wishlistGrid" class="wishlist-grid" style="display:none;">
+    {% for d in destinations %}
+      <div class="wishlist-item-card" data-id="{{ d.pk }}" style="display:none;">
+        <div class="wishlist-card-media">
+          <a href="{% url 'destination_detail' d.pk %}">
+            {% if d.image %}
+              <img src="{{ d.image.url }}" alt="{{ d.name }}" class="wishlist-card-img" loading="lazy">
+            {% else %}
+              <img src="{{ d.image_url }}" alt="{{ d.name }}" class="wishlist-card-img" loading="lazy">
+            {% endif %}
+          </a>
+          <button type="button" class="btn-wishlist-heart active" data-dest-id="{{ d.pk }}" title="Remove from wishlist" aria-label="Remove from wishlist" onclick="toggleWishlist(event, '{{ d.pk }}')">
+            <svg viewBox="0 0 24 24" class="heart-icon" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="wishlist-card-body">
+          <h3 class="wishlist-card-title">
+            <a href="{% url 'destination_detail' d.pk %}">{{ d.name }}</a>
+          </h3>
+          <div class="wishlist-card-meta">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>{{ d.district }}, {{ d.state|default:"Kerala" }} · {{ d.category.name }}</span>
+          </div>
+          <div class="wishlist-card-pricing">
+            <div class="card-rating">
+              <span class="star-gold">★</span>
+              <span class="rating-num">{{ d.rating }}</span>
+            </div>
+            <div class="wishlist-card-cost">
+              <span>{{ d.avg_daily_cost|inr }}</span> <small>/ day</small>
+            </div>
+          </div>
+          <div class="wishlist-card-actions">
+            <a href="{% url 'book' %}?dest={{ d.pk }}" class="btn-wishlist-book">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Book Trip</span>
+            </a>
+            <button type="button" class="btn-wishlist-remove" onclick="removeWishlistItem(event, '{{ d.pk }}')">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Remove</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Empty State -->
+  <div id="wishlistEmptyState" class="wishlist-empty-state" style="display:none;">
+    <div class="wishlist-empty-icon-wrap">
+      <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+    </div>
+    <h2 class="wishlist-empty-title">Your wishlist is empty</h2>
+    <p class="wishlist-empty-desc">
+      Explore top Kerala destinations, discover breathtaking waterfalls, hill stations, and backwaters, and tap the heart icon to save your favorites here.
+    </p>
+    <a href="{% url 'destinations' %}" class="btn-explore-destinations">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+      </svg>
+      <span>Explore Destinations</span>
+    </a>
+  </div>
+</div>
+
+<script>
+  function renderWishlistPage() {
+    const list = window.WishlistManager ? window.WishlistManager.getWishlist() : [];
+    const grid = document.getElementById('wishlistGrid');
+    const emptyState = document.getElementById('wishlistEmptyState');
+    const countPill = document.getElementById('wishlistCountPill');
+    const cards = document.querySelectorAll('#wishlistGrid .wishlist-item-card');
+    
+    let visibleCount = 0;
+    cards.forEach(card => {
+      const id = card.dataset.id;
+      if (list.includes(id)) {
+        card.style.display = 'flex';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (countPill) {
+      countPill.textContent = visibleCount + (visibleCount === 1 ? ' Saved Item' : ' Saved Items');
+    }
+
+    if (visibleCount > 0) {
+      if (grid) grid.style.display = 'grid';
+      if (emptyState) emptyState.style.display = 'none';
+    } else {
+      if (grid) grid.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'block';
+    }
+  }
+
+  function removeWishlistItem(e, destId) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const card = document.querySelector(`.wishlist-item-card[data-id="${destId}"]`);
+    if (card) {
+      card.classList.add('removing');
+      setTimeout(() => {
+        if (window.WishlistManager) {
+          window.WishlistManager.remove(destId);
+        }
+        renderWishlistPage();
+      }, 220);
+    } else {
+      if (window.WishlistManager) {
+        window.WishlistManager.remove(destId);
+      }
+      renderWishlistPage();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', renderWishlistPage);
+  window.addEventListener('wishlistChanged', renderWishlistPage);
+</script>
+{% endblock %}

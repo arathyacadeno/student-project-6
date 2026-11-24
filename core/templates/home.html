@@ -155,47 +155,4 @@
     {% endfor %}
   </div>
 </section>
-
-<!-- Wishlist Notification Toast & Toggle Script -->
-<div id="wishlistToast" class="wishlist-toast">Saved to your wishlist!</div>
-
-<script>
-  function toggleWishlist(btn, destId) {
-    const heart = btn.querySelector('.heart-icon');
-    let wishlist = JSON.parse(localStorage.getItem('user_wishlist') || '[]');
-
-    if (wishlist.includes(destId)) {
-      wishlist = wishlist.filter(id => id !== destId);
-      btn.classList.remove('active');
-      showToast('Removed from wishlist');
-    } else {
-      wishlist.push(destId);
-      btn.classList.add('active');
-      showToast('Saved to your wishlist!');
-    }
-    localStorage.setItem('user_wishlist', JSON.stringify(wishlist));
-  }
-
-  function showToast(msg) {
-    const toast = document.getElementById('wishlistToast');
-    if (toast) {
-      toast.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2400);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const wishlist = JSON.parse(localStorage.getItem('user_wishlist') || '[]');
-    document.querySelectorAll('.btn-wishlist-heart').forEach(btn => {
-      const card = btn.closest('.modern-dest-card');
-      if (card) {
-        const id = card.dataset.id;
-        if (wishlist.includes(id)) {
-          btn.classList.add('active');
-        }
-      }
-    });
-  });
-</script>
 {% endblock %}

@@ -46,6 +46,17 @@
           <span>Packages</span>
         </a>
 
+        <!-- E-commerce Style Wishlist with Live Counter Badge -->
+        <a class="nav-item nav-wishlist-item {% if request.resolver_match.url_name == 'wishlist' %}active-pill{% endif %}" href="{% url 'wishlist' %}" title="View Wishlist">
+          <span class="nav-wishlist-icon-wrap">
+            <svg viewBox="0 0 24 24" class="nav-icon nav-heart-icon" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span class="nav-wishlist-badge" id="navWishlistBadge">0</span>
+          </span>
+          <span>Wishlist</span>
+        </a>
+
         {% if user.is_authenticated %}
           {% if user.is_staff %}
             <a class="nav-item {% if request.resolver_match.url_name == 'admin_bookings' %}active-pill{% endif %}" href="{% url 'admin_bookings' %}">
@@ -152,6 +163,7 @@
             <li><a href="{% url 'home' %}">Home</a></li>
             <li><a href="{% url 'destinations' %}">Destinations</a></li>
             <li><a href="{% url 'packages' %}">Tour Packages</a></li>
+            <li><a href="{% url 'wishlist' %}">My Wishlist</a></li>
             <li><a href="{% url 'planner' %}">AI Trip Planner</a></li>
             <li><a href="{% url 'tools' %}">Smart Travel Tools</a></li>
             {% if user.is_staff %}
@@ -202,5 +214,170 @@
       </div>
     </div>
   </footer>
+
+  <!-- Wishlist Notification Toast -->
+  <div id="wishlistToast" class="wishlist-toast">Saved to your wishlist!</div>
+
+  <!-- Global Wishlist Manager -->
+  <script>
+    window.WishlistManager = {
+      KEY: 'user_wishlist',
+
+      getWishlist: function() {
+        try {
+          const raw = localStorage.getItem(this.KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+          return Array.from(new Set(parsed.map(String).filter(Boolean)));
+        } catch (err) {
+          console.error('Error reading wishlist from localStorage:', err);
+          return [];
+        }
+      },
+
+      setWishlist: function(items) {
+        try {
+          const clean = Array.from(new Set(items.map(String).filter(Boolean)));
+          localStorage.setItem(this.KEY, JSON.stringify(clean));
+          this.updateBadge(clean.length);
+          this.syncButtons(clean);
+          window.dispatchEvent(new CustomEvent('wishlistChanged', { detail: { items: clean } }));
+        } catch (err) {
+          console.error('Error saving wishlist to localStorage:', err);
+        }
+      },
+
+      has: function(destId) {
+        const list = this.getWishlist();
+        return list.includes(String(destId));
+      },
+
+      toggle: function(destId) {
+        const id = String(destId);
+        let list = this.getWishlist();
+        const exists = list.includes(id);
+        if (exists) {
+          list = list.filter(item => item !== id);
+          this.showToast('Removed from wishlist');
+        } else {
+          list.push(id);
+          this.showToast('Saved to your wishlist!');
+        }
+        this.setWishlist(list);
+        return !exists;
+      },
+
+      remove: function(destId) {
+        const id = String(destId);
+        let list = this.getWishlist();
+        if (list.includes(id)) {
+          list = list.filter(item => item !== id);
+          this.setWishlist(list);
+          this.showToast('Removed from wishlist');
+        }
+      },
+
+      updateBadge: function(count) {
+        if (typeof count === 'undefined') {
+          count = this.getWishlist().length;
+        }
+        const badge = document.getElementById('navWishlistBadge');
+        if (badge) {
+          badge.textContent = count;
+          badge.classList.remove('pop');
+          void badge.offsetWidth;
+          badge.classList.add('pop');
+          setTimeout(() => badge.classList.remove('pop'), 250);
+        }
+      },
+
+      syncButtons: function(list) {
+        if (!list) list = this.getWishlist();
+        document.querySelectorAll('.btn-wishlist-heart').forEach(btn => {
+          const id = btn.getAttribute('data-dest-id') || (btn.closest('.modern-dest-card') ? btn.closest('.modern-dest-card').dataset.id : null);
+          if (id) {
+            if (list.includes(String(id))) {
+              btn.classList.add('active');
+              btn.setAttribute('title', 'Remove from wishlist');
+              btn.setAttribute('aria-label', 'Remove from wishlist');
+            } else {
+              btn.classList.remove('active');
+              btn.setAttribute('title', 'Save to wishlist');
+              btn.setAttribute('aria-label', 'Save to wishlist');
+            }
+          }
+        });
+        document.querySelectorAll('.btn-detail-wishlist').forEach(btn => {
+          const id = btn.getAttribute('data-dest-id');
+          if (id) {
+            const label = btn.querySelector('.btn-detail-wishlist-label');
+            if (list.includes(String(id))) {
+              btn.classList.add('active');
+              if (label) label.textContent = 'Saved in Wishlist';
+            } else {
+              btn.classList.remove('active');
+              if (label) label.textContent = 'Save to Wishlist';
+            }
+          }
+        });
+      },
+
+      showToast: function(msg) {
+        const toast = document.getElementById('wishlistToast');
+        if (toast) {
+          toast.textContent = msg;
+          toast.classList.add('show');
+          clearTimeout(this._toastTimeout);
+          this._toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+          }, 2200);
+        }
+      },
+
+      init: function() {
+        this.updateBadge();
+        this.syncButtons();
+      }
+    };
+
+    window.toggleWishlist = function(arg1, arg2) {
+      let e = null;
+      let destId = null;
+      if (arg1 && typeof arg1.preventDefault === 'function') {
+        e = arg1;
+        destId = arg2;
+      } else if (typeof arg2 !== 'undefined') {
+        destId = arg2;
+      } else {
+        destId = arg1;
+      }
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (window.event) {
+        window.event.preventDefault();
+        window.event.stopPropagation();
+      }
+      if (window.WishlistManager && destId) {
+        window.WishlistManager.toggle(destId);
+      }
+    };
+
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'user_wishlist' && window.WishlistManager) {
+        window.WishlistManager.updateBadge();
+        window.WishlistManager.syncButtons();
+        window.dispatchEvent(new CustomEvent('wishlistChanged', { detail: { items: window.WishlistManager.getWishlist() } }));
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.WishlistManager) {
+        window.WishlistManager.init();
+      }
+    });
+  </script>
 </body>
 </html>

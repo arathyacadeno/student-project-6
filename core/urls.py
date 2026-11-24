@@ -13,6 +13,7 @@ urlpatterns = [
     path("destinations/", v.destination_list, name="destinations"),
     path("destinations/<int:pk>/", v.destination_detail, name="destination_detail"),
     path("packages/", v.package_list, name="packages"),
+    path("wishlist/", v.wishlist_view, name="wishlist"),
 
     path("dashboard/", v.dashboard, name="dashboard"),
     path("profile/", v.profile_view, name="profile"),

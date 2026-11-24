@@ -2082,34 +2082,57 @@ footer{
 }
 .btn-wishlist-heart{
   position:absolute;
-  top:10px;
-  right:10px;
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  background:rgba(255, 255, 255, 0.9);
-  backdrop-filter:blur(6px);
-  border:none;
+  top:12px;
+  right:12px;
+  background:transparent !important;
+  background-color:transparent !important;
+  border:none !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  padding:4px;
+  width:auto;
+  height:auto;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  color:#475569;
-  transition:all 0.15s ease;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
-  z-index:5;
+  z-index:10;
+  outline:none;
+  transition:transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .btn-wishlist-heart:hover{
-  transform:scale(1.1);
-  color:#ef4444;
+  transform:scale(1.18);
+  background:transparent !important;
+}
+.btn-wishlist-heart .heart-icon{
+  width:24px;
+  height:24px;
+  fill:rgba(0, 0, 0, 0.22);
+  stroke:#ffffff;
+  stroke-width:2.2;
+  filter:drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+  transition:fill 0.25s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.btn-wishlist-heart:hover .heart-icon{
+  stroke:#ffffff;
+  fill:rgba(255, 56, 92, 0.3);
 }
 .btn-wishlist-heart.active{
-  color:#ef4444;
-  background:#ffffff;
+  background:transparent !important;
 }
 .btn-wishlist-heart.active .heart-icon{
-  fill:#ef4444;
-  stroke:#ef4444;
+  fill:#ff385c !important;
+  stroke:#ffffff !important;
+  stroke-width:1.8;
+  filter:drop-shadow(0 2px 8px rgba(255, 56, 92, 0.6)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+  animation:heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes heartPop{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.35)}
+  75%{transform:scale(0.92)}
+  100%{transform:scale(1)}
 }
 .card-info{
   padding:14px 16px 16px;
@@ -2431,6 +2454,293 @@ footer{
   transform:translateY(0);
 }
 
+/* Navbar Wishlist Indicator */
+.nav-wishlist-item{
+  position:relative;
+}
+.nav-wishlist-icon-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-right:2px;
+}
+.nav-wishlist-badge{
+  position:absolute;
+  top:-7px;
+  right:-9px;
+  background:#ff385c;
+  color:#ffffff;
+  font-size:0.65rem;
+  font-weight:800;
+  line-height:1;
+  min-width:17px;
+  height:17px;
+  padding:0 4px;
+  border-radius:99px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 2px 6px rgba(255, 56, 92, 0.45);
+  transition:transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.nav-wishlist-badge.pop{
+  transform:scale(1.35);
+}
+
+/* Detail Hero Wishlist Button */
+.dest-hero-image{
+  position:relative;
+}
+.btn-detail-wishlist{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#ffffff;
+  border:1.5px solid #e2e8f0;
+  color:#334155;
+  font-weight:600;
+  padding:8px 16px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+.btn-detail-wishlist:hover{
+  border-color:#ff385c;
+  color:#ff385c;
+  background:#fff5f7;
+}
+.btn-detail-wishlist.active{
+  background:#fff1f3;
+  border-color:#ff385c;
+  color:#e11d48;
+}
+.btn-detail-wishlist.active .heart-icon{
+  fill:#ff385c;
+  stroke:#ff385c;
+}
+
+/* Wishlist Page Styling */
+.wishlist-page-header{
+  margin-bottom:28px;
+}
+.wishlist-page-title-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.wishlist-page-title{
+  font-size:1.85rem;
+  font-weight:800;
+  color:#101d3a;
+  font-family:var(--font-heading);
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.wishlist-page-subtitle{
+  margin-top:6px;
+  color:#64748b;
+  font-size:0.96rem;
+}
+.wishlist-count-pill{
+  background:#f1f5f9;
+  color:#334155;
+  font-size:0.85rem;
+  font-weight:700;
+  padding:6px 14px;
+  border-radius:99px;
+  border:1px solid #e2e8f0;
+}
+.wishlist-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:24px;
+  margin-top:20px;
+}
+.wishlist-item-card{
+  background:#ffffff;
+  border:1px solid #e8eef5;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(16, 29, 58, 0.05);
+  display:flex;
+  flex-direction:column;
+  transition:transform 0.25s ease, box-shadow 0.25s ease, opacity 0.3s ease;
+  position:relative;
+}
+.wishlist-item-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 24px rgba(16, 29, 58, 0.09);
+}
+.wishlist-item-card.removing{
+  opacity:0;
+  transform:scale(0.9);
+}
+.wishlist-card-media{
+  position:relative;
+  height:190px;
+  overflow:hidden;
+}
+.wishlist-card-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform 0.4s ease;
+}
+.wishlist-item-card:hover .wishlist-card-img{
+  transform:scale(1.05);
+}
+.wishlist-card-body{
+  padding:16px 18px 18px;
+  display:flex;
+  flex-direction:column;
+  flex-grow:1;
+  gap:10px;
+}
+.wishlist-card-title{
+  font-size:1.12rem;
+  font-weight:700;
+  color:#101d3a;
+  margin:0;
+  font-family:var(--font-heading);
+}
+.wishlist-card-title a{
+  color:inherit;
+  text-decoration:none;
+}
+.wishlist-card-title a:hover{
+  color:#168fe5;
+}
+.wishlist-card-meta{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#64748b;
+  font-size:0.86rem;
+}
+.wishlist-card-pricing{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-top:auto;
+  padding-top:12px;
+  border-top:1px solid #f1f5f9;
+}
+.wishlist-card-cost{
+  font-weight:700;
+  color:#0f172a;
+  font-size:1.02rem;
+}
+.wishlist-card-cost small{
+  font-size:0.78rem;
+  font-weight:500;
+  color:#64748b;
+}
+.wishlist-card-actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin-top:12px;
+}
+.btn-wishlist-book{
+  background:#168fe5;
+  color:#ffffff;
+  font-weight:600;
+  font-size:0.88rem;
+  padding:9px 16px;
+  border-radius:10px;
+  text-align:center;
+  text-decoration:none;
+  transition:background 0.2s ease, transform 0.15s ease;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.btn-wishlist-book:hover{
+  background:#0f76c0;
+  transform:translateY(-1px);
+  color:#ffffff;
+}
+.btn-wishlist-remove{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#64748b;
+  padding:9px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:0.82rem;
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  transition:all 0.2s ease;
+}
+.btn-wishlist-remove:hover{
+  background:#fee2e2;
+  border-color:#fca5a5;
+  color:#b91c1c;
+}
+
+/* Wishlist Empty State */
+.wishlist-empty-state{
+  text-align:center;
+  padding:64px 20px;
+  background:#ffffff;
+  border-radius:20px;
+  border:1px dashed #cbd5e1;
+  margin-top:24px;
+}
+.wishlist-empty-icon-wrap{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:#fff1f2;
+  color:#ff385c;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:20px;
+}
+.wishlist-empty-title{
+  font-size:1.45rem;
+  font-weight:800;
+  color:#101d3a;
+  font-family:var(--font-heading);
+  margin:0 0 8px;
+}
+.wishlist-empty-desc{
+  color:#64748b;
+  font-size:0.95rem;
+  max-width:440px;
+  margin:0 auto 24px;
+  line-height:1.5;
+}
+.btn-explore-destinations{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#168fe5;
+  color:#ffffff;
+  padding:12px 26px;
+  border-radius:99px;
+  font-weight:700;
+  font-size:0.95rem;
+  text-decoration:none;
+  box-shadow:0 4px 14px rgba(22, 143, 229, 0.35);
+  transition:all 0.2s ease;
+}
+.btn-explore-destinations:hover{
+  background:#0f76c0;
+  color:#ffffff;
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(22, 143, 229, 0.45);
+}
+
 /* Responsive Rules for Homepage */
 @media(max-width:880px){
   .hero-banner-section{min-height:auto}
@@ -2458,4 +2768,316 @@ footer{
   .hero-search{border-radius:18px;flex-wrap:wrap;padding:10px}
   .hero-search-input{flex:1 1 70%}
   .hero-search-btn{width:100%}
+}
+
+/* ==========================================================================
+   Book Trip & Package - 2-Column Responsive Layout & Live Price Calculation
+   ========================================================================== */
+.booking-page-header{
+  margin-bottom:24px;
+}
+.booking-layout-container{
+  display:grid;
+  grid-template-columns:1.18fr 0.82fr;
+  gap:32px;
+  align-items:start;
+  margin-bottom:60px;
+}
+.booking-main-card{
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+  border-radius:20px;
+  padding:30px 32px;
+  box-shadow:0 6px 24px rgba(16, 29, 58, 0.05);
+}
+.booking-form-section-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:1.02rem;
+  font-weight:700;
+  color:#101d3a;
+  font-family:var(--font-heading);
+  margin-bottom:14px;
+  padding-bottom:8px;
+  border-bottom:1px solid #f1f5f9;
+}
+.booking-main-card .field{
+  margin-bottom:18px;
+}
+.booking-main-card .field label{
+  display:block;
+  font-size:0.88rem;
+  font-weight:600;
+  color:#334155;
+  margin-bottom:6px;
+}
+.booking-main-card .field select,
+.booking-main-card .field input[type="text"],
+.booking-main-card .field input[type="number"],
+.booking-main-card .field input[type="date"],
+.booking-main-card .field textarea{
+  width:100%;
+  padding:11px 14px;
+  border:1.5px solid #cbd5e1;
+  border-radius:10px;
+  font-size:0.95rem;
+  font-family:var(--font-body);
+  color:#0f172a;
+  background:#ffffff;
+  transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing:border-box;
+}
+.booking-main-card .field select:focus,
+.booking-main-card .field input:focus,
+.booking-main-card .field textarea:focus{
+  outline:none;
+  border-color:#168fe5;
+  box-shadow:0 0 0 3px rgba(22, 143, 229, 0.15);
+}
+.booking-form-dates-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.btn-booking-submit{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  background:#168fe5;
+  color:#ffffff;
+  font-weight:700;
+  font-size:1.02rem;
+  padding:14px 24px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  margin-top:14px;
+  box-shadow:0 4px 16px rgba(22, 143, 229, 0.35);
+  transition:all 0.2s ease;
+}
+.btn-booking-submit:hover{
+  background:#0f76c0;
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(22, 143, 229, 0.45);
+}
+
+/* Right Side: Calculation Card */
+.booking-calc-card{
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+  border-radius:20px;
+  padding:24px 26px;
+  box-shadow:0 8px 30px rgba(16, 29, 58, 0.08);
+  position:sticky;
+  top:95px;
+  transition:box-shadow 0.2s ease;
+}
+.calc-card-header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:18px;
+}
+.calc-header-icon{
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  background:rgba(22, 143, 229, 0.1);
+  color:#168fe5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.calc-card-title{
+  font-size:1.18rem;
+  font-weight:800;
+  color:#101d3a;
+  font-family:var(--font-heading);
+  margin:0 0 2px;
+}
+.calc-card-subtitle{
+  font-size:0.83rem;
+  color:#64748b;
+  margin:0;
+}
+.calc-destination-preview{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:#f8fafc;
+  border:1px solid #eef2f6;
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:16px;
+}
+.calc-dest-img-wrap{
+  width:68px;
+  height:68px;
+  border-radius:10px;
+  overflow:hidden;
+  flex-shrink:0;
+  background:#e2e8f0;
+}
+.calc-dest-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.calc-dest-name{
+  font-size:1rem;
+  font-weight:700;
+  color:#101d3a;
+  margin:0 0 2px;
+  font-family:var(--font-heading);
+}
+.calc-dest-loc{
+  font-size:0.82rem;
+  color:#64748b;
+  margin:0;
+}
+.calc-plan-badge{
+  display:inline-block;
+  background:#e0f2fe;
+  color:#0369a1;
+  font-size:0.75rem;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:99px;
+  margin-top:4px;
+}
+.calc-specs-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:16px;
+}
+.calc-spec-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:#f1f5f9;
+  color:#334155;
+  font-size:0.8rem;
+  font-weight:600;
+  padding:5px 10px;
+  border-radius:8px;
+}
+.calc-divider{
+  height:1px;
+  background:#edf2f7;
+  margin:14px 0;
+}
+.calc-line-items{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.calc-line-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.calc-item-desc{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.calc-item-name{
+  font-size:0.92rem;
+  font-weight:600;
+  color:#1e293b;
+}
+.calc-item-formula{
+  font-size:0.78rem;
+  color:#64748b;
+}
+.calc-item-val{
+  font-size:0.96rem;
+  font-weight:700;
+  color:#0f172a;
+  white-space:nowrap;
+}
+.calc-free-badge{
+  color:#10b981;
+  font-size:0.82rem;
+  font-weight:700;
+  background:#ecfdf5;
+  padding:2px 8px;
+  border-radius:6px;
+}
+.calc-total-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 0;
+}
+.calc-total-label{
+  font-size:1.05rem;
+  font-weight:700;
+  color:#101d3a;
+  font-family:var(--font-heading);
+  display:block;
+}
+.calc-total-sub{
+  font-size:0.78rem;
+  color:#64748b;
+  display:block;
+}
+.calc-grand-total{
+  font-size:1.75rem;
+  font-weight:800;
+  color:#168fe5;
+  font-family:var(--font-heading);
+  letter-spacing:-0.5px;
+}
+.calc-budget-box{
+  margin-top:14px;
+  padding:10px 14px;
+  border-radius:10px;
+  font-size:0.84rem;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.calc-budget-box.within{
+  background:#ecfdf5;
+  border:1px solid #a7f3d0;
+  color:#065f46;
+}
+.calc-budget-box.exceeded{
+  background:#fffbeb;
+  border:1px solid #fde68a;
+  color:#92400e;
+}
+.calc-guarantee-box{
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px dashed #e2e8f0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.calc-guarantee-item{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  font-size:0.8rem;
+  color:#64748b;
+  line-height:1.4;
+}
+
+@media(max-width:960px){
+  .booking-layout-container{
+    grid-template-columns:1fr;
+    gap:24px;
+  }
+  .booking-calc-card{
+    position:static !important;
+  }
 }

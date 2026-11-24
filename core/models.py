@@ -1,5 +1,8 @@
+import os
+import uuid
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.text import slugify
 
 CLIMATES = [
     ("cool", "Cool & Misty (Hills / Mountain)"),
@@ -8,6 +11,14 @@ CLIMATES = [
     ("moderate", "Moderate & Pleasant (Plains / Valley)"),
     ("cold", "Cold & Chilly (High Altitudes)"),
 ]
+
+
+def destination_image_upload_to(instance, filename):
+    base, ext = os.path.splitext(filename)
+    slug = slugify(instance.name or "destination")[:40]
+    uid = uuid.uuid4().hex[:8]
+    ext = ext.lower()[:6] or ".jpg"
+    return f"destinations/{slug}_{uid}{ext}"
 
 
 def _split(value):
@@ -43,7 +54,7 @@ class Destination(models.Model):
     eco_friendly = models.BooleanField(default=False)
     latitude = models.FloatField(default=10.0)
     longitude = models.FloatField(default=76.3)
-    image = models.ImageField(upload_to="destinations/", blank=True, null=True, help_text="Upload destination photo")
+    image = models.ImageField(upload_to=destination_image_upload_to, max_length=255, blank=True, null=True, help_text="Upload destination photo")
     emoji = models.CharField(max_length=4, default="🌴", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
