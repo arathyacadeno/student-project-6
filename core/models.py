@@ -68,10 +68,10 @@ class Destination(models.Model):
 class Hotel(models.Model):
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE, related_name="hotels")
     name = models.CharField(max_length=120)
-    price_per_night = models.PositiveIntegerField()
-    rating = models.FloatField(default=4.0)
+    price_per_night = models.PositiveIntegerField(help_text="INR per night")
+    rating = models.FloatField(default=4.0, help_text="e.g. 4.2 (0 to 5)")
     eco_friendly = models.BooleanField(default=False)
-    amenities = models.CharField(max_length=200, blank=True)
+    amenities = models.CharField(max_length=200, blank=True, help_text="Comma-separated features, e.g. Free Wi-Fi, Breakfast, Pool, AC, Parking")
 
     def __str__(self):
         return f"{self.name} ({self.destination})"
