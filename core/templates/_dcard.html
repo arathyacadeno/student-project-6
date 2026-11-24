@@ -4,9 +4,7 @@
     {% if d.image %}
       <img src="{{ d.image.url }}" alt="{{ d.name }}" class="card-photo" loading="lazy">
     {% else %}
-      <div class="card-photo-fallback {{ d.climate }}">
-        <span>{{ d.emoji|default:"🌴" }}</span>
-      </div>
+      <img src="{{ d.image_url }}" alt="{{ d.name }}" class="card-photo" loading="lazy">
     {% endif %}
     <!-- Wishlist Heart Button -->
     <button type="button" class="btn-wishlist-heart" title="Save to wishlist" aria-label="Save to wishlist" onclick="toggleWishlist(this, '{{ d.pk }}')">

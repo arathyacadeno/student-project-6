@@ -76,9 +76,12 @@ def destination_list(request):
 
 def destination_detail(request, pk):
     dest = get_object_or_404(Destination.objects.select_related("category"), pk=pk)
+    related = Destination.objects.filter(category=dest.category).exclude(pk=dest.pk).order_by("-rating")[:3]
     return render(request, "destination_detail.html", {
         "d": dest, "hotels": dest.hotels.all(), "packages": dest.packages.filter(is_active=True),
-        "activities": dest.activities.all(), "reviews": dest.reviews.select_related("user")[:5]})
+        "activities": dest.activities.all(), "reviews": dest.reviews.select_related("user")[:5],
+        "related": related,
+    })
 
 
 def package_list(request):

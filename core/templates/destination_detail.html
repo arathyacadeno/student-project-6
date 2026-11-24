@@ -1,10 +1,14 @@
 {% extends "base.html" %}{% load tm_extras %}
 {% block title %}{{ d.name }} · Beyond Destination AI{% endblock %}
 {% block content %}
-<div class="page-head"><h2>{% if not d.image %}{{ d.emoji }} {% endif %}{{ d.name }}</h2><p>{{ d.district }}, {{ d.state }} · {{ d.category }}</p></div>
-{% if d.image %}
-<div class="dest-hero-image mb"><img src="{{ d.image.url }}" alt="{{ d.name }}"></div>
-{% endif %}
+<div class="page-head"><h2>{{ d.name }}</h2><p>{{ d.district }}, {{ d.state }} · {{ d.category }}</p></div>
+<div class="dest-hero-image mb">
+  {% if d.image %}
+    <img src="{{ d.image.url }}" alt="{{ d.name }}">
+  {% else %}
+    <img src="{{ d.image_url }}" alt="{{ d.name }}">
+  {% endif %}
+</div>
 <div class="grid g2">
   <div class="card"><p>{{ d.description }}</p>
     <h4>Attractions</h4><p>{% for a in d.attraction_list %}<span class="tag">{{ a }}</span>{% endfor %}</p>
@@ -22,4 +26,12 @@
 <div class="grid g3">{% for p in packages %}<div class="card"><h4>{{ p.title }}</h4><p class="muted small">{{ p.description }}</p>{% for i in p.include_list %}<span class="tag">{{ i }}</span>{% endfor %}<p class="price">{{ p.price|inr }} <span class="small muted">per person</span></p>
   {% if user.is_authenticated and not user.is_staff %}<a class="btn small" href="{% url 'book' %}?package={{ p.pk }}">Book package</a>{% endif %}</div>{% empty %}<p class="muted">No packages yet.</p>{% endfor %}</div>
 {% if reviews %}<h3 class="mt">Traveller reviews</h3><div class="grid g3">{% for r in reviews %}<div class="card"><span class="star">{{ r.rating|stars }}</span> <span class="tag {% if r.sentiment == 'Negative' %}red{% endif %}">{{ r.sentiment }}</span><p>{{ r.text }}</p><span class="small muted">{{ r.user.username }}</span></div>{% endfor %}</div>{% endif %}
+{% if related %}
+<h3 class="mt">Related destinations</h3>
+<div class="popular-cards-grid">
+  {% for d in related %}
+    {% include "_dcard.html" %}
+  {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

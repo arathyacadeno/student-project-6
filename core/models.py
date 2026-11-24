@@ -69,6 +69,23 @@ class Destination(models.Model):
     def peak_month_list(self):
         return [int(m) for m in _split(self.peak_months) if m.isdigit()]
 
+    @property
+    def image_url(self):
+        """Single source of truth for destination image URL.
+        Returns the exact uploaded database image URL if present,
+        or a consistent fallback image if none was uploaded.
+        """
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        return "/static/img/default_destination.jpg"
+
+    @property
+    def photo_url(self):
+        return self.image_url
+
 
 class Hotel(models.Model):
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE, related_name="hotels")
