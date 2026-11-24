@@ -375,7 +375,8 @@ def admin_edit(request, key, pk=None):
         form.save()
         messages.success(request, f"{title[:-1] if title.endswith('s') else title} saved.")
         return redirect("admin_list", key=key)
-    return render(request, "manage/form.html", {"form": form, "key": key, "title": title, "obj": obj})
+    template = "manage/destination_form.html" if key == "destinations" else "manage/form.html"
+    return render(request, template, {"form": form, "key": key, "title": title, "obj": obj})
 
 
 @staff_required
