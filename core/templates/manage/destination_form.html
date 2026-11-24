@@ -179,14 +179,14 @@
 
         <!-- Row 5: Attractions (Tag Input) -->
         <div class="dest-field-group">
-          <label class="dest-label">Attractions</label>
+          <label class="dest-label">Attractions <span class="dest-req">*</span></label>
           <div class="dest-tags-area">
             <div class="dest-chips-container" id="chipsContainer">
               <!-- Rendered by JS from hidden attractions input -->
             </div>
             <div class="dest-tag-input-row">
-              <input type="text" id="attractionInput" class="dest-tag-input" 
-                     placeholder="Add attraction and press Enter">
+              <input type="text" id="attractionInput" name="attractions_input" class="dest-tag-input" 
+                     placeholder="Add attraction (e.g. Waterfalls, Nature Walks) and press Enter or comma">
               <button type="button" id="btnAddTag" class="dest-tag-add-btn" title="Add attraction">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -377,6 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const chipsContainer = document.getElementById('chipsContainer');
   const tagInput = document.getElementById('attractionInput');
   const btnAddTag = document.getElementById('btnAddTag');
+  const destForm = document.getElementById('destinationForm');
 
   let tags = [];
   if (hiddenAttractions && hiddenAttractions.value.trim()) {
@@ -400,12 +401,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function addCurrentTag() {
     if (!tagInput) return;
-    const val = tagInput.value.trim();
-    if (val && !tags.includes(val)) {
-      tags.push(val);
-      renderTags();
-      tagInput.value = '';
-    }
+    const raw = tagInput.value.trim();
+    if (!raw) return;
+    const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
+    parts.forEach(p => {
+      if (!tags.includes(p)) {
+        tags.push(p);
+      }
+    });
+    renderTags();
+    tagInput.value = '';
   }
 
   if (btnAddTag) {
@@ -417,6 +422,25 @@ document.addEventListener('DOMContentLoaded', function() {
       if (e.key === 'Enter') {
         e.preventDefault();
         addCurrentTag();
+      }
+    });
+
+    tagInput.addEventListener('input', function() {
+      if (this.value.includes(',')) {
+        addCurrentTag();
+      }
+    });
+
+    tagInput.addEventListener('blur', function() {
+      addCurrentTag();
+    });
+  }
+
+  if (destForm) {
+    destForm.addEventListener('submit', function() {
+      addCurrentTag();
+      if (hiddenAttractions) {
+        hiddenAttractions.value = tags.join(', ');
       }
     });
   }

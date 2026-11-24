@@ -384,7 +384,15 @@ def admin_edit(request, key, pk=None):
     if model == Destination:
         fields = [f.name for f in Destination._meta.fields if f.name not in ("id", "created_at", "emoji")]
     Form = modelform_factory(model, fields=fields)
-    form = Form(request.POST or None, request.FILES or None, instance=obj)
+
+    post_data = request.POST.copy() if request.method == "POST" else None
+    if post_data is not None and model == Destination:
+        if not post_data.get("attractions", "").strip():
+            fallback = post_data.get("attractions_input", "").strip()
+            if fallback:
+                post_data["attractions"] = fallback
+
+    form = Form(post_data or None, request.FILES or None, instance=obj)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, f"{title[:-1] if title.endswith('s') else title} saved.")
