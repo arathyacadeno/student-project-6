@@ -29,65 +29,7 @@
       <div class="hero-action-buttons">
         <a href="{% url 'planner' %}" class="btn-hero-primary">Plan a trip with AI</a>
         <a href="{% url 'packages' %}" class="btn-hero-secondary">View tour packages</a>
-      </div>
-    </div>
-
-    <!-- Right: sample itinerary -->
-    <div class="hero-right-card-wrap">
-      <div class="suggested-itinerary-card">
-        <div class="itinerary-card-header">
-          <div class="itinerary-header-badge">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-          </div>
-          <h3 class="itinerary-header-title">Sample 5-day itinerary</h3>
-        </div>
-
-        <div class="itinerary-timeline-list">
-          <div class="itinerary-step">
-            <div class="step-indicator">
-              <div class="step-icon-circle"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"
-                  stroke="currentColor" stroke-width="2">
-                  <path d="M2 19h20M4 15l2-6h12l2 6H4zM12 4v5"></path>
-                </svg></div>
-              <div class="step-line"></div>
-            </div>
-            <div class="step-details">
-              <h4 class="step-title">Days 1-2: Alappuzha</h4>
-              <p class="step-desc">Houseboat through the backwaters</p>
-            </div>
-          </div>
-          <div class="itinerary-step">
-            <div class="step-indicator">
-              <div class="step-icon-circle"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"
-                  stroke="currentColor" stroke-width="2">
-                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-                </svg></div>
-              <div class="step-line"></div>
-            </div>
-            <div class="step-details">
-              <h4 class="step-title">Day 3: Athirappilly</h4>
-              <p class="step-desc">Waterfalls and rainforest walk</p>
-            </div>
-          </div>
-          <div class="itinerary-step">
-            <div class="step-indicator">
-              <div class="step-icon-circle"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"
-                  stroke="currentColor" stroke-width="2">
-                  <path d="M2 20h20L12 4z"></path>
-                </svg></div>
-            </div>
-            <div class="step-details">
-              <h4 class="step-title">Days 4-5: Munnar</h4>
-              <p class="step-desc">Tea gardens at sunrise and scenic hills</p>
-            </div>
-          </div>
-        </div>
-        <a href="{% url 'planner' %}" class="itinerary-card-link">Create your own itinerary</a>
+        <a href="{% url 'planner' %}" class="btn-hero-primary">Create your own itinerary</a>
       </div>
     </div>
   </div>
@@ -187,7 +129,7 @@
       <select name="cat" class="filter-select" onchange="this.form.submit()">
         <option value="">All Categories</option>
         {% for cat in categories %}
-        <option value="{{ cat.id }}" {% if cat.id==selected_cat %}selected{% endif %}>{{ cat.name }}</option>
+        <option value="{{ cat.id }}" {{ cat.id|is_selected:selected_cat }}>{{ cat.name }}</option>
         {% endfor %}
       </select>
       <svg viewBox="0 0 24 24" class="select-chevron" fill="none" stroke="currentColor" stroke-width="2">

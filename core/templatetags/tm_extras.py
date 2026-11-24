@@ -52,3 +52,13 @@ def stars(value):
 @register.filter
 def get_item(d, key):
     return d.get(key, "")
+
+
+@register.filter
+def is_selected(val1, val2):
+    if not val2:
+        return ""
+    try:
+        return "selected" if int(val1) == int(val2) else ""
+    except (ValueError, TypeError):
+        return ""
