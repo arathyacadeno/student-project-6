@@ -38,7 +38,8 @@ class Destination(models.Model):
     eco_friendly = models.BooleanField(default=False)
     latitude = models.FloatField(default=10.0)
     longitude = models.FloatField(default=76.3)
-    emoji = models.CharField(max_length=4, default="🌴")
+    image = models.ImageField(upload_to="destinations/", blank=True, null=True, help_text="Upload destination photo")
+    emoji = models.CharField(max_length=4, default="🌴", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
