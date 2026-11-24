@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>My bookings</h2><p>Your travel history and requests.</p></div>
+<div class="tablewrap"><table><tr><th>Destination</th><th>Dates</th><th>Travellers</th><th>Estimate</th><th>Status</th><th></th></tr>
+{% for b in bookings %}<tr><td><b>{{ b.destination }}</b>{% if b.package %}<br><span class="small muted">{{ b.package.title }}</span>{% endif %}</td><td>{{ b.start_date }} to {{ b.end_date }}</td><td>{{ b.travellers }}</td><td>{{ b.total_cost|inr }}</td>
+<td><span class="status {{ b.status }}">{{ b.get_status_display }}</span></td>
+<td>{% if b.status != 'cancelled' %}<form method="post" action="{% url 'cancel_booking' b.pk %}">{% csrf_token %}<button class="btn danger small" type="submit">Cancel</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">No bookings yet. <a href="{% url 'book' %}">Book your first trip</a>.</td></tr>{% endfor %}</table></div>
+{% endblock %}

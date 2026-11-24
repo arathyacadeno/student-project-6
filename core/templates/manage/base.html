@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="side">
+<nav aria-label="Admin"><a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}on{% endif %}">Overview</a>
+<a href="{% url 'admin_list' 'destinations' %}">Destinations</a><a href="{% url 'admin_list' 'categories' %}">Categories</a><a href="{% url 'admin_list' 'packages' %}">Packages</a>
+<a href="{% url 'admin_list' 'hotels' %}">Hotels</a><a href="{% url 'admin_list' 'activities' %}">Activities</a><a href="{% url 'admin_bookings' %}">Bookings</a>
+<a href="{% url 'admin_customers' %}">Customers</a><a href="{% url 'admin_reports' %}">Reports</a></nav>
+<section>{% block admin %}{% endblock %}</section></div>
+{% endblock %}

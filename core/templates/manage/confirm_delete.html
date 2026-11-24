@@ -1,0 +1,5 @@
+{% extends "manage/base.html" %}
+{% block admin %}
+<div class="card" style="max-width:520px"><h3>Delete "{{ obj }}"?</h3><p class="muted">This cannot be undone.</p>
+<form method="post" class="row">{% csrf_token %}<button class="btn danger" type="submit">Delete</button><a class="btn ghost" href="{% url 'admin_list' key %}">Keep it</a></form></div>
+{% endblock %}

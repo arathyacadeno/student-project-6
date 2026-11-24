@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>💰 Cost optimizer</h2><p>Compare three ways to do the same trip and see which fits your budget.</p></div>
+<form class="card inline mb" method="get"><div><label for="dest">Destination</label><select id="dest" name="dest">{% for d in dests %}<option value="{{ d.pk }}" {% if dest.pk == d.pk %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select></div>
+<div><label for="days">Days</label><input id="days" type="number" name="days" min="1" value="{{ days }}"></div><div><label for="tr">Travellers</label><input id="tr" type="number" name="travellers" min="1" value="{{ travellers }}"></div>
+<div><label for="bu">Budget (₹)</label><input id="bu" type="number" name="budget" min="1" value="{{ budget }}"></div><div style="flex:0 0 auto"><button type="submit">Compare</button></div></form>
+<div class="grid g3">{% for o in options %}<div class="card"><h3>{{ o.tier }} {% if o == best %}<span class="tag gold">Best fit</span>{% endif %}</h3><p class="muted small">{{ o.hotel.name }} · {{ o.mode }}</p>
+<table><tr><td>Stay</td><td>{{ o.stay|inr }}</td></tr><tr><td>Food</td><td>{{ o.food|inr }}</td></tr><tr><td>Transport</td><td>{{ o.transport|inr }}</td></tr><tr><th>Total</th><th>{{ o.total|inr }}</th></tr></table>
+<p class="small">{% if o.fits %}<span class="tag">Within budget</span> {{ o.diff|inr }} to spare{% else %}<span class="tag red">Over budget</span> by {{ o.diff|inr }}{% endif %}</p></div>
+{% empty %}<p class="muted">Add hotels for this destination to compare costs.</p>{% endfor %}</div>
+{% if options and not best.fits %}<div class="alert warn mt">Even the cheapest option is over budget. Try fewer days, travel off-season, or choose a lower-cost destination.</div>{% endif %}
+{% endblock %}

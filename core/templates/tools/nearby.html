@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>📍 Nearby places</h2><p>Find essentials around {{ dest.name }}.</p></div>
+<form class="card inline mb" method="get"><div><label for="dest">Destination</label><select id="dest" name="dest">{% for d in dests %}<option value="{{ d.pk }}" {% if dest.pk == d.pk %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select></div>
+<div><label for="kind">Find</label><select id="kind" name="kind">{% for k, label in kinds %}<option value="{{ k }}" {% if k == kind %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><div style="flex:0 0 auto"><button type="submit">Show on map</button></div></form>
+<iframe class="map" title="Map of {{ kind }} near {{ dest.name }}" loading="lazy" src="https://maps.google.com/maps?q={{ kind|urlencode }}+near+{{ dest.latitude }},{{ dest.longitude }}&z=14&output=embed"></iframe>
+<p class="mt"><a class="btn ghost small" target="_blank" rel="noopener" href="https://www.google.com/maps/search/{{ kind|urlencode }}/@{{ dest.latitude }},{{ dest.longitude }},14z">Open in Google Maps</a></p>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Destinations · TravelMate AI{% endblock %}
+{% block content %}
+<div class="page-head"><h2>Destinations</h2><p>Search by place, attraction or interest.</p></div>
+<form class="card inline mb" method="get">
+  <div><label for="q">Search</label><input id="q" name="q" value="{{ q }}" placeholder="waterfalls, Munnar, boating"></div>
+  <div><label for="category">Category</label><select id="category" name="category"><option value="">All</option>{% for c in categories %}<option value="{{ c.pk }}" {% if cat == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div><label for="mc">Max cost per day (₹)</label><input id="mc" name="max_cost" type="number" value="{{ max_cost }}" min="0" step="100"></div>
+  <div style="flex:0 0 auto"><button type="submit">Search</button></div>
+</form>
+<div class="grid g3">{% for d in destinations %}{% include "_dcard.html" %}{% empty %}<p class="muted">No destinations match. Try fewer filters.</p>{% endfor %}</div>
+{% endblock %}

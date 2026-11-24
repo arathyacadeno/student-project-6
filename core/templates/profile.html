@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>Travel preferences</h2><p>These feed the recommendation model. Update them any time.</p></div>
+<form class="card" method="post" style="max-width:640px">{% csrf_token %}
+{% for f in form %}<div class="field {% if f.name == 'preferred_categories' %}checks{% endif %}"><label {% if f.name != 'preferred_categories' %}for="{{ f.id_for_label }}"{% endif %}>{{ f.label }}</label>{{ f }}{{ f.errors }}{% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}</div>{% endfor %}
+<button type="submit">Save and see recommendations</button></form>
+{% endblock %}

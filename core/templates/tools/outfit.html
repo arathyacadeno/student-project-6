@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>👕 What to wear</h2><p>Clothing suggestions from the destination's climate and the month you travel.</p></div>
+<form class="card inline mb" method="get"><div><label for="dest">Destination</label><select id="dest" name="dest">{% for d in dests %}<option value="{{ d.pk }}" {% if dest.pk == d.pk %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select></div>
+<div><label for="month">Month</label><select id="month" name="month">{% for n, m in months %}<option value="{{ n }}" {% if n == month %}selected{% endif %}>{{ m }}</option>{% endfor %}</select></div><div style="flex:0 0 auto"><button type="submit">Suggest outfits</button></div></form>
+{% if data %}<div class="card"><h3>{{ dest.name }} in {{ data.season|lower }}</h3><p class="muted">Expect {{ data.temp }}.</p><ul>{% for i in data.items %}<li>{{ i }}</li>{% endfor %}</ul></div>{% endif %}
+{% endblock %}

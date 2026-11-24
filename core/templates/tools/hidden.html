@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>🗺️ Hidden places</h2><p>Quieter, lesser-known destinations that match your interests.</p></div>
+<div class="grid g3">{% for d, score, why in recs %}<div>{% include "_dcard.html" %}<p class="small muted" style="margin:6px 4px">{% if score is not None %}<b>{{ score }}% match.</b> {% endif %}{{ why }}.</p></div>{% empty %}<p class="muted">No hidden gems yet.</p>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>🗣️ Local phrases</h2><p>Common greetings, food and transport questions.</p></div>
+<div class="field" style="max-width:360px"><label for="f">Filter phrases</label><input id="f" placeholder="e.g. bus" oninput="document.querySelectorAll('#t tr.p').forEach(r=>r.hidden=!r.dataset.s.includes(this.value.toLowerCase()))"></div>
+<div class="tablewrap"><table id="t"><tr><th>English</th>{% for c, n in langs %}<th>{{ n }}</th>{% endfor %}</tr>
+{% for en, tr in phrases %}<tr class="p" data-s="{{ en|lower }}"><td><b>{{ en }}</b></td>{% for c, n in langs %}<td lang="{{ c }}">{{ tr|get_item:c }}</td>{% endfor %}</tr>{% endfor %}</table></div>
+{% endblock %}

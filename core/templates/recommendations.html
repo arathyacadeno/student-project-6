@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>Recommended for you</h2><p>Ranked by a K-Nearest Neighbours model using your categories, interests and past bookings.</p></div>
+{% if not profile.interests and not profile.preferred_categories.exists %}<div class="alert warn">You haven't set preferences yet. <a href="{% url 'profile' %}">Add them</a> for personalised picks.</div>{% endif %}
+<div class="grid g3">{% for d, score, why in recs %}<div>{% include "_dcard.html" %}<p class="small muted" style="margin:6px 4px">{% if score is not None %}<b>{{ score }}% match.</b> {% endif %}{{ why }}.</p></div>{% empty %}<p class="muted">No destinations available yet. Once destinations are added, personalized recommendations will appear here.</p>{% endfor %}</div>
+{% endblock %}

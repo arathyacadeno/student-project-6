@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>Travel packages</h2><p>Ready-made trips with stay, transport and guides.</p></div>
+<div class="grid g3">{% for p in packages %}<div class="card"><h3>{{ p.title }}</h3><div class="muted small">{{ p.destination }} · {{ p.days }} days</div><p>{{ p.description }}</p>
+{% for i in p.include_list %}<span class="tag">{{ i }}</span>{% endfor %}<p class="price">{{ p.price|inr }} <span class="small muted">per person</span></p>
+{% if user.is_authenticated and not user.is_staff %}<a class="btn small" href="{% url 'book' %}?package={{ p.pk }}">Book package</a>{% else %}<a class="btn ghost small" href="{% url 'destination_detail' p.destination.pk %}">View destination</a>{% endif %}</div>{% empty %}<p class="muted">No packages available.</p>{% endfor %}</div>
+{% endblock %}

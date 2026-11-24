@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>AI trip planner</h2><p>Share your trip details. Gemini writes a day-wise plan with an estimated budget.</p></div>
+<div class="grid g2">
+<form class="card" method="post">{% csrf_token %}
+{% for f in form %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}{{ f.errors }}{% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}</div>{% endfor %}
+<button type="submit">Generate itinerary</button></form>
+<div>
+<form class="card mb" method="post">{% csrf_token %}<h3>Ask a travel question</h3><div class="field"><input name="question" maxlength="300" placeholder="Is Munnar good in July?" required></div><button type="submit">Ask AI</button>
+{% if answer %}<div class="prose mt"><p><b>{{ answer.q }}</b></p><p>{{ answer.a }}</p></div>{% endif %}</form>
+<div class="card"><h3>Your recent plans</h3>{% for it in history %}<p><a href="{% url 'itinerary_detail' it.pk %}">{{ it.days }} days in {{ it.destination }}</a> <span class="small muted">{{ it.created_at|date:"d M" }}</span></p>{% empty %}<p class="muted">Nothing yet.</p>{% endfor %}</div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>Smart tools</h2><p>Helpers for every stage of a trip.</p></div>
+<div class="grid g3">{% for url, ic, title, desc in tools %}<a class="card tool" href="{% url url %}"><div class="ic">{{ ic }}</div><h3>{{ title }}</h3><p>{{ desc }}</p></a>{% endfor %}</div>
+{% endblock %}

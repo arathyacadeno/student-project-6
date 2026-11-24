@@ -1,0 +1,7 @@
+{% extends "manage/base.html" %}{% load tm_extras %}
+{% block admin %}
+<div class="page-head"><h2>Admin dashboard</h2><p>Manage destinations, packages and bookings.</p></div>
+<div class="grid g3 mb">{% for label, n in stats %}<div class="card stat"><span>{{ label }}</span><b>{{ n }}</b></div>{% endfor %}<div class="card stat"><span>Confirmed booking value</span><b>{{ revenue|inr }}</b></div></div>
+<div class="grid g2"><div class="card"><h3>Recent bookings</h3>{% for b in recent %}<div class="row sp" style="padding:10px 0;border-bottom:1px solid var(--line)"><span>{{ b.user.username }} → <b>{{ b.destination }}</b></span><span class="status {{ b.status }}">{{ b.get_status_display }}</span></div>{% empty %}<p class="muted">No bookings yet.</p>{% endfor %}<p style="margin-top:18px"><a class="btn small" href="{% url 'admin_bookings' %}">Manage bookings</a></p></div>
+<div class="card"><h3>Recommendation model</h3><p class="muted">Retrain the KNN model after adding or editing destinations.</p><form method="post" action="{% url 'admin_train' %}">{% csrf_token %}<button type="submit">Retrain model</button></form></div></div>
+{% endblock %}

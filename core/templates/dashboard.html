@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>Hello, {{ user.username }}</h2><p>Your trips, plans and picks in one place.</p></div>
+<div class="grid g4 mb">
+  <div class="card stat"><span>Bookings</span><b>{{ booking_count }}</b></div>
+  <div class="card stat"><span>Recent AI plans</span><b>{{ itineraries|length }}</b></div>
+  <div class="card" style="display:flex;align-items:center;justify-content:center"><a class="btn" style="width:100%" href="{% url 'planner' %}">Plan a trip</a></div>
+  <div class="card" style="display:flex;align-items:center;justify-content:center"><a class="btn ghost" style="width:100%" href="{% url 'profile' %}">Edit preferences</a></div>
+</div>
+<div class="grid g2">
+  <section class="card"><h3>Upcoming trips</h3>
+    {% for b in upcoming %}<div class="row sp"><span><b>{{ b.destination }}</b><br><span class="small muted">{{ b.start_date }} to {{ b.end_date }} · {{ b.travellers }} traveller(s)</span></span><span class="status {{ b.status }}">{{ b.get_status_display }}</span></div><hr style="border:0;border-top:1px solid var(--line)">
+    {% empty %}<p class="muted">No upcoming trips. <a href="{% url 'book' %}">Book one</a>.</p>{% endfor %}
+    <a href="{% url 'my_bookings' %}">All bookings</a></section>
+  <section class="card"><h3>Picked for you</h3>
+    {% for d, score, why in recs %}<div class="row sp"><a href="{% url 'destination_detail' d.pk %}"><b>{{ d.emoji }} {{ d.name }}</b></a>{% if score is not None %}<span class="tag">{{ score }}% match</span>{% endif %}</div>{% endfor %}
+    <a href="{% url 'recommendations' %}">See all recommendations</a></section>
+</div>
+{% if itineraries %}<h3 class="mt">Recent AI itineraries</h3><div class="grid g3">{% for it in itineraries %}<a class="card tool" href="{% url 'itinerary_detail' it.pk %}"><h3>{{ it.days }} days in {{ it.destination }}</h3><p>{{ it.created_at|date:"d M Y" }}</p></a>{% endfor %}</div>{% endif %}
+{% endblock %}

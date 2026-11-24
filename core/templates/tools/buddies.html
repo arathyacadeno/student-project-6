@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>🤝 Travel buddies</h2><p>Travellers with similar interests, or booked to the same place on overlapping dates.</p></div>
+{% if not me.interests and not me.preferred_categories.exists %}<div class="alert warn">Add interests in <a href="{% url 'profile' %}">your preferences</a> to improve matches.</div>{% endif %}
+<div class="grid g3">{% for m in matches %}<div class="card"><h3>{{ m.user.username }}</h3><div class="bar gold" style="margin-bottom:8px"><i style="width:{{ m.pct }}%"></i></div><b>{{ m.pct }}% match</b>
+<p class="small muted">{{ m.profile.get_travel_style_display }} traveller{% if m.common %} · shared: {{ m.common|join:", " }}{% endif %}</p>
+{% if m.trip %}<p class="small">Also going to <b>{{ m.trip.destination }}</b> from {{ m.trip.start_date }}.</p>{% endif %}</div>
+{% empty %}<p class="muted">No matches yet. As more travellers join, matches appear here.</p>{% endfor %}</div>
+{% endblock %}

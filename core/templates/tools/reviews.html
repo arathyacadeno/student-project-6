@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>💬 Review sentiment</h2><p>What travellers say about {{ dest.name }}.</p></div>
+{% include "tools/_pick.html" %}
+<div class="grid g2"><div class="card"><h3>Summary ({{ reviews|length }} reviews)</h3>
+{% for s, n in counts.items %}<div class="row sp"><span>{{ s }}</span><span>{{ n }}</span></div><div class="bar {% if s == 'Positive' %}green{% elif s == 'Negative' %}red{% endif %}" style="margin-bottom:10px"><i style="width:{% if s == 'Positive' %}{{ pct.Positive }}{% elif s == 'Negative' %}{{ pct.Negative }}{% else %}{{ pct.Neutral }}{% endif %}%"></i></div>{% endfor %}
+<p><b>Praised:</b> {{ pos_kw|join:", "|default:"-" }}<br><b>Complaints:</b> {{ neg_kw|join:", "|default:"-" }}</p></div>
+<form class="card" method="post">{% csrf_token %}<h3>Add your review</h3>{% for f in form %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}{{ f.errors }}</div>{% endfor %}<button type="submit">Post review</button></form></div>
+<div class="grid g3 mt">{% for r in reviews %}<div class="card"><span class="tag {% if r.sentiment == 'Negative' %}red{% elif r.sentiment == 'Neutral' %}gray{% endif %}">{{ r.sentiment }}</span> <span class="star">{{ r.rating|stars }}</span><p>{{ r.text }}</p><span class="small muted">{{ r.user.username }}</span></div>{% endfor %}</div>
+{% endblock %}

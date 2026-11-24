@@ -1,0 +1,10 @@
+{% extends "manage/base.html" %}{% load tm_extras %}
+{% block admin %}
+<div class="page-head"><h2>Bookings</h2></div>
+<p class="row"><a class="tag {% if not status %}gold{% endif %}" href="{% url 'admin_bookings' %}">All</a>{% for v, l in statuses %}<a class="tag {% if status == v %}gold{% endif %}" href="?status={{ v }}">{{ l }}</a>{% endfor %}</p>
+<div class="tablewrap"><table><tr><th>#</th><th>Customer</th><th>Trip</th><th>Dates</th><th>Cost</th><th>Status</th><th>Action</th></tr>
+{% for b in bookings %}<tr><td>{{ b.pk }}</td><td>{{ b.user.username }}<br><span class="small muted">{{ b.user.email }}</span></td><td><b>{{ b.destination }}</b><br><span class="small muted">{{ b.travellers }} traveller(s){% if b.package %} · {{ b.package.title }}{% endif %}</span></td><td>{{ b.start_date }} to {{ b.end_date }}</td><td>{{ b.total_cost|inr }}</td>
+<td><form method="post" class="row" style="flex-wrap:nowrap">{% csrf_token %}<input type="hidden" name="id" value="{{ b.pk }}"><select name="status" aria-label="Status for booking {{ b.pk }}" style="min-width:120px">{% for v, l in statuses %}<option value="{{ v }}" {% if b.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select><button class="small" type="submit">Update</button></form></td>
+<td><form method="post" onsubmit="return confirm('Delete booking #{{ b.pk }}?');">{% csrf_token %}<input type="hidden" name="id" value="{{ b.pk }}"><input type="hidden" name="action" value="delete"><button class="small ghost" style="color:var(--danger,#c33);border-color:currentColor;" type="submit">Delete</button></form></td></tr>
+{% empty %}<tr><td colspan="7" class="muted">No bookings.</td></tr>{% endfor %}</table></div>
+{% endblock %}

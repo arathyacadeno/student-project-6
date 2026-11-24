@@ -1,0 +1,2 @@
+<form class="card inline mb" method="get"><div><label for="dest">Destination</label><select id="dest" name="dest" onchange="this.form.submit()">{% for d in dests %}<option value="{{ d.pk }}" {% if dest.pk == d.pk %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select></div>
+<noscript><button type="submit">Go</button></noscript></form>

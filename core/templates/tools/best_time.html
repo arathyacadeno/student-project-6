@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>📅 Best time to visit</h2><p>Weather and crowd levels for each month.</p></div>
+{% include "tools/_pick.html" %}
+<div class="card mb"><h3>Best months for {{ dest.name }}: {{ top|join:", " }}</h3></div>
+<div class="tablewrap"><table><tr><th>Month</th><th>Conditions</th><th style="width:40%">Suitability</th><th>Crowds</th></tr>
+{% for m in months %}<tr><td>{{ m.month }}</td><td>{{ m.weather }}</td><td><div class="bar {% if m.score >= 80 %}green{% elif m.score < 55 %}red{% endif %}"><i style="width:{{ m.score }}%"></i></div></td><td><span class="tag {% if m.crowd == 'Peak' %}gold{% elif m.crowd == 'Off-season' %}gray{% endif %}">{{ m.crowd }}</span></td></tr>{% endfor %}</table></div>
+{% endblock %}

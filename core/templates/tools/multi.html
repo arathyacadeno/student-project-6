@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>🧭 Multi-destination explorer</h2><p>Pick several places. We order them into a route, estimate travel time and the total budget.</p></div>
+<form class="card mb" method="get"><div class="field checks"><label>Destinations (the first one you tick is your starting point)</label><div>{% for d in all %}<label><input type="checkbox" name="d" value="{{ d.pk }}" {% if d.pk in ids %}checked{% endif %}> {{ d.name }}</label>{% endfor %}</div></div>
+<div class="inline"><div style="max-width:160px"><label for="tr">Travellers</label><input id="tr" type="number" name="travellers" min="1" value="{{ travellers }}"></div><div style="flex:0 0 auto"><button type="submit">Plan route</button></div></div></form>
+{% if plan %}
+<div class="grid g4 mb"><div class="card stat"><b>{{ plan.route|length }}</b><span>Stops</span></div><div class="card stat"><b>{{ plan.km }} km</b><span>Road distance (est.)</span></div><div class="card stat"><b>{{ plan.hours }} h</b><span>Driving time</span></div><div class="card stat"><b>{{ plan.budget|inr }}</b><span>Budget for {{ plan.days }} days</span></div></div>
+<div class="card"><ol style="padding-left:1.2em">{% for d in plan.route %}<li style="margin-bottom:14px"><b>{{ d.name }}</b> <span class="muted small">{{ d.district }}</span><br>{% for a in d.attraction_list %}<span class="tag">{{ a }}</span>{% endfor %}
+{% for leg in plan.legs %}{% if leg.from == d %}<div class="small" style="color:var(--teal);margin-top:6px">↓ {{ leg.km }} km · about {{ leg.hours }} h to {{ leg.to.name }}</div>{% endif %}{% endfor %}</li>{% endfor %}</ol>
+<p class="small muted">Includes {{ plan.stay_food|inr }} for stay and food (2 days per stop) and {{ plan.transport|inr }} for cab travel. Distances are estimates; check live traffic before you go.</p></div>
+{% else %}<p class="muted">Select at least one destination.</p>{% endif %}
+{% endblock %}

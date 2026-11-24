@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>🛡️ Safety information</h2><p>Know before you go.</p></div>
+{% include "tools/_pick.html" %}
+<div class="grid g2"><div class="card"><h3>{{ dest.name }}</h3><div class="stat"><b>{{ dest.safety_score }}/100</b><span>Safety score (admin-curated)</span></div>
+<div class="bar {% if dest.safety_score >= 85 %}green{% elif dest.safety_score < 70 %}red{% endif %}" style="margin:10px 0"><i style="width:{{ dest.safety_score }}%"></i></div>
+<h4>Tips</h4><ul>{% for t in tips %}<li>{{ t }}</li>{% endfor %}</ul></div>
+<div class="card"><h3>Emergency numbers (India)</h3><table>{% for n, num in emergency %}<tr><td>{{ n }}</td><td><b><a href="tel:{{ num }}">{{ num }}</a></b></td></tr>{% endfor %}</table></div></div>
+{% endblock %}

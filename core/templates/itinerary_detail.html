@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>{{ it.days }} days in {{ it.destination }}</h2><p>{{ it.travellers }} traveller(s) · budget {{ it.budget|inr }} · {% if it.source == 'gemini' %}written by Gemini{% else %}built-in planner{% endif %}</p></div>
+<div class="card prose">{{ it.content|md }}</div>
+<div class="row mt"><a class="btn" href="{% url 'book' %}?dest={{ it.destination.pk }}">Book this trip</a><a class="btn ghost" href="{% url 'planner' %}">New plan</a><button class="btn ghost" onclick="window.print()">Print</button></div>
+{% endblock %}

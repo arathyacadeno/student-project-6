@@ -1,0 +1,7 @@
+{% extends "manage/base.html" %}{% load tm_extras %}
+{% block admin %}
+<div class="page-head"><h2>Travel reports</h2><p>{{ total }} bookings · {{ revenue|inr }} excluding cancelled.</p></div>
+<div class="grid g2"><div class="card"><h3>Most booked destinations</h3>{% for d, pct in by_dest %}<div class="row sp small"><span>{{ d.name }}</span><span>{{ d.n }}</span></div><div class="bar" style="margin-bottom:10px"><i style="width:{{ pct }}%"></i></div>{% empty %}<p class="muted">No data yet.</p>{% endfor %}</div>
+<div class="card"><h3>By status</h3>{% for s, n in by_status.items %}<div class="row sp"><span class="status {{ s }}">{{ s|capfirst }}</span><b>{{ n }}</b></div><br>{% endfor %}
+<h3>Popular categories</h3>{% for c in by_cat %}<div class="row sp"><span>{{ c.name }}</span><b>{{ c.n }}</b></div>{% empty %}<p class="muted">No data yet.</p>{% endfor %}</div></div>
+{% endblock %}

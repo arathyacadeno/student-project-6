@@ -1,0 +1,7 @@
+{% extends "manage/base.html" %}{% load tm_extras %}
+{% block admin %}
+<div class="page-head"><h2>Customers</h2></div>
+<div class="tablewrap"><table><tr><th>Username</th><th>Email</th><th>Joined</th><th>Bookings</th><th>Total value</th><th>Action</th></tr>
+{% for c in customers %}<tr><td><b>{{ c.username }}</b></td><td>{{ c.email }}</td><td>{{ c.date_joined|date:"d M Y" }}</td><td>{{ c.n }}</td><td>{{ c.spent|default:0|inr }}</td>
+<td><form method="post" onsubmit="return confirm('Delete customer {{ c.username }} and all their data?');">{% csrf_token %}<input type="hidden" name="id" value="{{ c.pk }}"><input type="hidden" name="action" value="delete"><button class="small ghost" style="color:var(--danger,#c33);border-color:currentColor;" type="submit">Delete</button></form></td></tr>{% empty %}<tr><td colspan="6" class="muted">No customers yet.</td></tr>{% endfor %}</table></div>
+{% endblock %}

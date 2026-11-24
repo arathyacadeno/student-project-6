@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load tm_extras %}
+{% block content %}
+<div class="page-head"><h2>🌿 Sustainable travel</h2><p>Eco-friendly stays and ways to travel lightly.</p></div>
+<div class="grid g2"><div class="card"><h3>Eco-friendly stays</h3>{% for h in hotels %}<div class="row sp"><span>{{ h.name }}<br><span class="small muted">{{ h.destination }}</span></span><b>{{ h.price_per_night|inr }}</b></div><hr style="border:0;border-top:1px solid var(--line)">{% endfor %}</div>
+<div class="card"><h3>Responsible destinations</h3><p>{% for d in dests %}<a class="tag" href="{% url 'destination_detail' d.pk %}">{{ d.name }}</a>{% endfor %}</p>
+<h3>Travel lighter</h3><ul><li>Take KSRTC buses or trains between towns instead of private cars.</li><li>Choose small homestays that hire locally.</li><li>Carry a reusable bottle. Say no to single-use plastic.</li><li>Keep to marked trails and never feed wildlife.</li><li>Buy spices and crafts from local cooperatives.</li></ul></div></div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><h2>🛂 Travel documents</h2><p>Check your passport and tick off what you need to carry.</p></div>
+<div class="grid g2">
+<div class="card"><h3>Passport check</h3>
+{% if upcoming %}<p class="muted small">Next trip: {{ upcoming.destination }} on {{ upcoming.start_date }}</p>{% endif %}
+<form class="inline" method="get"><div><label for="td">Travel date</label><input id="td" type="date" name="travel_date" value="{{ travel_date }}"></div><div style="flex:0 0 auto"><button type="submit">Check</button></div></form>
+{% if status %}<div class="alert {{ status.0 }}">{{ status.1 }}</div>{% else %}<div class="alert warn">Add your passport expiry date in <a href="{% url 'profile' %}">preferences</a> to get reminders.</div>{% endif %}</div>
+<div class="card"><h3>Checklist</h3><div id="checks">{% for item in checklist %}<label style="font-weight:400"><input type="checkbox" data-i="{{ forloop.counter0 }}"> {{ item }}</label>{% endfor %}</div><p class="small muted">Ticks are saved in this browser.</p></div></div>
+<script>
+const key="tm-docs",saved=JSON.parse(localStorage.getItem(key)||"[]");
+document.querySelectorAll("#checks input").forEach(c=>{c.checked=saved.includes(c.dataset.i);c.onchange=()=>{const on=[...document.querySelectorAll("#checks input:checked")].map(x=>x.dataset.i);localStorage.setItem(key,JSON.stringify(on))}});
+</script>
+{% endblock %}
