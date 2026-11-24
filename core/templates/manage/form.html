@@ -1,7 +1,20 @@
 {% extends "manage/base.html" %}
 {% block admin %}
 <div class="page-head"><h2>{% if obj %}Edit{% else %}Add{% endif %} · {{ title }}</h2></div>
-<form class="card" method="post" style="max-width:680px">{% csrf_token %}{{ form.non_field_errors }}
-{% for f in form %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}{{ f.errors }}{% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}</div>{% endfor %}
+<form class="card" method="post" enctype="multipart/form-data" style="max-width:680px">{% csrf_token %}{{ form.non_field_errors }}
+{% for f in form %}
+<div class="field">
+  <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+  {% if f.name == 'image' and obj and obj.image %}
+    <div style="margin-bottom:10px">
+      <img src="{{ obj.image.url }}" alt="{{ obj }}" style="max-height:140px;border-radius:10px;border:1px solid var(--line);display:block;margin-bottom:6px">
+      <span class="small muted">Current image</span>
+    </div>
+  {% endif %}
+  {{ f }}
+  {{ f.errors }}
+  {% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}
+</div>
+{% endfor %}
 <div class="row"><button type="submit">Save</button><a class="btn ghost" href="{% url 'admin_list' key %}">Cancel</a></div></form>
 {% endblock %}

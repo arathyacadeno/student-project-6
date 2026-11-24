@@ -366,8 +366,11 @@ def admin_edit(request, key, pk=None):
         return redirect("admin_dashboard")
     model, title = CRUD[key]
     obj = get_object_or_404(model, pk=pk) if pk else None
-    Form = modelform_factory(model, fields="__all__")
-    form = Form(request.POST or None, instance=obj)
+    fields = "__all__"
+    if model == Destination:
+        fields = [f.name for f in Destination._meta.fields if f.name not in ("id", "created_at", "emoji")]
+    Form = modelform_factory(model, fields=fields)
+    form = Form(request.POST or None, request.FILES or None, instance=obj)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, f"{title[:-1] if title.endswith('s') else title} saved.")

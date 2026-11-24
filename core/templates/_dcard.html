@@ -1,5 +1,11 @@
 {% load tm_extras %}<article class="card flat dcard {{ d.climate }}">
-  <div class="top" aria-hidden="true">{{ d.emoji }}</div>
+  <div class="top" aria-hidden="true">
+    {% if d.image %}
+      <img src="{{ d.image.url }}" alt="{{ d.name }}" class="dcard-img">
+    {% else %}
+      {{ d.emoji|default:"🌴" }}
+    {% endif %}
+  </div>
   <div class="body">
     <h3><a href="{% url 'destination_detail' d.pk %}">{{ d.name }}</a></h3>
     <div class="muted small">{{ d.district }}, {{ d.state }}</div>
