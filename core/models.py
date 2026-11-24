@@ -1,8 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-CLIMATES = [("hill", "Hill station"), ("beach", "Beach"), ("backwater", "Backwaters"),
-            ("forest", "Forest / wildlife"), ("waterfall", "Waterfall"), ("plains", "Plains")]
+CLIMATES = [
+    ("cool", "Cool & Misty (Hills / Mountain)"),
+    ("tropical", "Tropical & Sunny (Warm / Coastal)"),
+    ("humid", "Humid & Lush (Rainforest / Waterfall)"),
+    ("moderate", "Moderate & Pleasant (Plains / Valley)"),
+    ("cold", "Cold & Chilly (High Altitudes)"),
+]
 
 
 def _split(value):
@@ -25,7 +30,7 @@ class Destination(models.Model):
     district = models.CharField(max_length=80)
     state = models.CharField(max_length=60, default="Kerala")
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="destinations")
-    climate = models.CharField(max_length=20, choices=CLIMATES, default="plains")
+    climate = models.CharField(max_length=20, choices=CLIMATES, default="moderate")
     description = models.TextField()
     attractions = models.TextField(help_text="Comma separated list of attractions")
     tags = models.CharField(max_length=250, blank=True, help_text="Comma separated, e.g. nature,family,boating")

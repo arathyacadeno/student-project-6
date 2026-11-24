@@ -7,25 +7,39 @@ MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 RAINY = {6, 7, 8, 9}
 
 # ---------- Outfit recommendation ----------
-BASE_TEMP = {"hill": (14, 24), "beach": (26, 33), "backwater": (25, 33), "forest": (20, 30),
-             "waterfall": (22, 30), "plains": (24, 35)}
-ACTIVITY_WEAR = {"hill": "Comfortable trekking shoes and a windcheater", "beach": "Swimwear and a hat",
-                 "backwater": "Light cotton clothes and a cap for the boat ride",
-                 "forest": "Full-sleeve shirt, long trousers and trekking shoes (leech socks in monsoon)",
-                 "waterfall": "Quick-dry clothes and sandals with a good grip", "plains": "Light cotton clothes"}
+BASE_TEMP = {
+    "cool": (14, 22), "cold": (8, 16), "tropical": (26, 33), "humid": (22, 30), "moderate": (22, 30),
+    "hill": (14, 24), "beach": (26, 33), "backwater": (25, 33), "forest": (20, 30),
+    "waterfall": (22, 30), "plains": (24, 35)
+}
+ACTIVITY_WEAR = {
+    "cool": "Light jacket, full-sleeve tops and comfortable walking shoes",
+    "cold": "Winter jacket, warm sweaters, thermals and boots",
+    "tropical": "Breathable cotton clothes, swimwear, hat and sunglasses",
+    "humid": "Quick-dry clothes, breathable t-shirts and non-slip sandals",
+    "moderate": "Comfortable cotton clothes and walking sneakers",
+    "hill": "Comfortable trekking shoes and a windcheater",
+    "beach": "Swimwear and a hat",
+    "backwater": "Light cotton clothes and a cap for the boat ride",
+    "forest": "Full-sleeve shirt, long trousers and trekking shoes",
+    "waterfall": "Quick-dry clothes and sandals with a good grip",
+    "plains": "Light cotton clothes"
+}
 
 
 def outfit_for(dest, month):
-    lo, hi = BASE_TEMP.get(dest.climate, (24, 33))
-    cold = dest.climate == "hill" and month in (11, 12, 1, 2)
+    lo, hi = BASE_TEMP.get(dest.climate, (22, 30))
+    cold = (dest.climate in ("cool", "cold", "hill")) and month in (11, 12, 1, 2)
     if cold:
         lo, hi = lo - 6, hi - 4
     rainy = month in RAINY
     items = []
-    if cold:
+    if dest.climate == "cold" or (cold and dest.climate != "tropical"):
         items += ["Winter jacket", "Sweaters / thermals", "Woollen cap and gloves", "Boots"]
-    elif dest.climate == "hill":
+    elif dest.climate in ("cool", "hill"):
         items += ["Light jacket for evenings", "Full-sleeve tops", "Sneakers"]
+    elif dest.climate in ("tropical", "beach"):
+        items += ["Breathable cotton t-shirts", "Shorts or light trousers", "Sunglasses and sunscreen", "Hat"]
     else:
         items += ["Breathable cotton t-shirts", "Shorts or light trousers", "Sunglasses and sunscreen"]
     if rainy:
