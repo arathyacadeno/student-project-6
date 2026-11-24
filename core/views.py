@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 
 from . import ai, ml, tools_logic as tl
 from .forms import BookingForm, PlannerForm, ProfileForm, RegisterForm, ReviewForm
-from .models import Activity, Booking, Category, Destination, Hotel, Itinerary, Package, Profile, Review
+from .models import Activity, Booking, Category, CLIMATES, Destination, Hotel, Itinerary, Package, Profile, Review
 
 staff_required = user_passes_test(lambda u: u.is_authenticated and u.is_staff, login_url="login")
 
@@ -23,8 +23,22 @@ def get_profile(user):
 
 # ------------------------------------------------------------------ public
 def home(request):
+    featured = Destination.objects.select_related("category").order_by("-rating")[:4]
+    all_dests = Destination.objects.select_related("category").order_by("name")
+    q = request.GET.get("q", "").strip()
+    cat_id = request.GET.get("cat", "").strip()
+    selected_cat = int(cat_id) if cat_id.isdigit() else None
+    if q:
+        all_dests = all_dests.filter(Q(name__icontains=q) | Q(district__icontains=q) | Q(attractions__icontains=q))
+    if selected_cat:
+        all_dests = all_dests.filter(category_id=selected_cat)
+
     return render(request, "home.html", {
-        "featured": Destination.objects.select_related("category").order_by("-rating")[:6],
+        "featured": featured,
+        "all_destinations": all_dests,
+        "categories": Category.objects.all(),
+        "q": q,
+        "selected_cat": selected_cat,
         "dest_count": Destination.objects.count(),
         "package_count": Package.objects.filter(is_active=True).count(),
     })
@@ -376,7 +390,10 @@ def admin_edit(request, key, pk=None):
         messages.success(request, f"{title[:-1] if title.endswith('s') else title} saved.")
         return redirect("admin_list", key=key)
     template = "manage/destination_form.html" if key == "destinations" else "manage/form.html"
-    return render(request, template, {"form": form, "key": key, "title": title, "obj": obj})
+    return render(request, template, {
+        "form": form, "key": key, "title": title, "obj": obj,
+        "categories": Category.objects.all(), "climates": CLIMATES,
+    })
 
 
 @staff_required

@@ -1,15 +1,55 @@
-{% load tm_extras %}<article class="card flat dcard {{ d.climate }}">
-  <div class="top" aria-hidden="true">
+{% load tm_extras %}
+<article class="modern-dest-card" data-id="{{ d.pk }}">
+  <div class="card-img-wrap">
     {% if d.image %}
-      <img src="{{ d.image.url }}" alt="{{ d.name }}" class="dcard-img">
+      <img src="{{ d.image.url }}" alt="{{ d.name }}" class="card-photo" loading="lazy">
     {% else %}
-      {{ d.emoji|default:"🌴" }}
+      <div class="card-photo-fallback {{ d.climate }}">
+        <span>{{ d.emoji|default:"🌴" }}</span>
+      </div>
     {% endif %}
+    <!-- Wishlist Heart Button -->
+    <button type="button" class="btn-wishlist-heart" title="Save to wishlist" aria-label="Save to wishlist" onclick="toggleWishlist(this, '{{ d.pk }}')">
+      <svg viewBox="0 0 24 24" class="heart-icon" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+    </button>
   </div>
-  <div class="body">
-    <h3><a href="{% url 'destination_detail' d.pk %}">{{ d.name }}</a></h3>
-    <div class="muted small">{{ d.district }}, {{ d.state }}</div>
-    <div style="margin:8px 0"><span class="tag">{{ d.category }}</span>{% if d.is_hidden_gem %}<span class="tag gold">Hidden gem</span>{% endif %}{% if d.eco_friendly %}<span class="tag">Eco</span>{% endif %}</div>
-    <div class="row sp"><span><span class="star">{{ d.rating|stars }}</span> <span class="small">{{ d.rating }}</span></span><span class="small muted">about {{ d.avg_daily_cost|inr }}/day</span></div>
+  <div class="card-info">
+    <h3 class="card-title">
+      <a href="{% url 'destination_detail' d.pk %}">{{ d.name }}</a>
+    </h3>
+    <div class="card-location">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+      <span>{{ d.district }}, {{ d.state|default:"Kerala" }}</span>
+    </div>
+    <div class="card-category-row">
+      <span class="card-category-badge">
+        {% if 'Water' in d.category.name %}
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+        {% elif 'Hill' in d.category.name or 'Mountain' in d.category.name %}
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20L12 4z"></path></svg>
+        {% elif 'Beach' in d.category.name %}
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0"></path></svg>
+        {% elif 'Backwater' in d.category.name %}
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 19h20M4 15l2-6h12l2 6H4zM12 4v5"></path></svg>
+        {% else %}
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        {% endif %}
+        <span>{{ d.category.name }}</span>
+      </span>
+    </div>
+    <div class="card-footer-row">
+      <div class="card-rating">
+        <span class="star-gold">★</span>
+        <span class="rating-num">{{ d.rating }}</span>
+      </div>
+      <div class="card-cost">
+        <span>about {{ d.avg_daily_cost|inr }}/day</span>
+      </div>
+    </div>
   </div>
 </article>
