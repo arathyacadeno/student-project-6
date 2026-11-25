@@ -120,19 +120,25 @@ def recommendations(request):
 
 @login_required
 def planner(request):
-    form = PlannerForm(request.POST or None, initial={"destination": request.GET.get("dest")})
     answer = None
     if request.method == "POST" and "question" in request.POST:
         q = request.POST["question"].strip()[:300]
-        answer = {"q": q, "a": ai.answer_question(q)} if q else None
-    elif request.method == "POST" and form.is_valid():
-        c = form.cleaned_data
-        text, source = ai.generate_itinerary(c["destination"], c["days"], c["travellers"], c["budget"],
-                                             c["interests"], c.get("start_date"))
-        it = Itinerary.objects.create(user=request.user, destination=c["destination"], days=c["days"],
-                                      travellers=c["travellers"], budget=c["budget"], interests=c["interests"],
-                                      content=text, source=source)
-        return redirect("itinerary_detail", pk=it.pk)
+        ans_text = ai.answer_question(q) if q else ""
+        if request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("Accept", ""):
+            from django.http import JsonResponse
+            return JsonResponse({"q": q, "a": ans_text})
+        answer = {"q": q, "a": ans_text} if q else None
+        form = PlannerForm(initial={"destination": request.GET.get("dest")})
+    else:
+        form = PlannerForm(request.POST or None, initial={"destination": request.GET.get("dest")})
+        if request.method == "POST" and form.is_valid():
+            c = form.cleaned_data
+            text, source = ai.generate_itinerary(c["destination"], c["days"], c["travellers"], c["budget"],
+                                                 c["interests"], c.get("start_date"))
+            it = Itinerary.objects.create(user=request.user, destination=c["destination"], days=c["days"],
+                                          travellers=c["travellers"], budget=c["budget"], interests=c["interests"],
+                                          content=text, source=source)
+            return redirect("itinerary_detail", pk=it.pk)
     return render(request, "planner.html", {"form": form, "answer": answer,
                                             "history": request.user.itineraries.select_related("destination")[:5]})
 

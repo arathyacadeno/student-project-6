@@ -1,13 +1,217 @@
 {% extends "base.html" %}
+{% load tm_extras %}
+
+{% block title %}AI Trip Planner · Beyond Destination AI{% endblock %}
+
 {% block content %}
-<div class="page-head"><h2>AI trip planner</h2><p>Share your trip details. Gemini writes a day-wise plan with an estimated budget.</p></div>
-<div class="grid g2">
-<form class="card" method="post">{% csrf_token %}
-{% for f in form %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}{{ f.errors }}{% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}</div>{% endfor %}
-<button type="submit">Generate itinerary</button></form>
-<div>
-<form class="card mb" method="post">{% csrf_token %}<h3>Ask a travel question</h3><div class="field"><input name="question" maxlength="300" placeholder="Is Munnar good in July?" required></div><button type="submit">Ask AI</button>
-{% if answer %}<div class="prose mt"><p><b>{{ answer.q }}</b></p><p>{{ answer.a }}</p></div>{% endif %}</form>
-<div class="card"><h3>Your recent plans</h3>{% for it in history %}<p><a href="{% url 'itinerary_detail' it.pk %}">{{ it.days }} days in {{ it.destination }}</a> <span class="small muted">{{ it.created_at|date:"d M" }}</span></p>{% empty %}<p class="muted">Nothing yet.</p>{% endfor %}</div>
-</div></div>
+<div class="page-head">
+  <h2>AI trip planner</h2>
+  <p>Share your trip details. Gemini writes a day-wise plan with an estimated budget.</p>
+</div>
+
+<div class="grid g2" style="align-items:start;">
+  <!-- Left Column: Itinerary Generator Form -->
+  <form class="card" method="post" id="itineraryForm" novalidate>
+    {% csrf_token %}
+    <h3 style="margin-top:0; margin-bottom:14px; font-family:var(--font-heading);">Plan a customized trip</h3>
+    {% for f in form %}
+      <div class="field">
+        <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+        {{ f }}
+        {{ f.errors }}
+        {% if f.help_text %}
+          <span class="help">{{ f.help_text }}</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" id="btnGenerateItinerary" class="btn" style="width:100%; margin-top:8px;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+      <span class="btn-text">Generate itinerary</span>
+    </button>
+  </form>
+
+  <!-- Right Column: Ask Travel Question & History -->
+  <div>
+    <!-- Ask AI Form -->
+    <form class="card mb" method="post" id="aiQuestionForm">
+      {% csrf_token %}
+      <h3 style="margin-top:0; margin-bottom:6px; font-family:var(--font-heading); display:flex; align-items:center; gap:8px;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#168fe5" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span>Ask a travel question</span>
+      </h3>
+      <p class="muted small" style="margin-bottom:12px;">Get instant answers about Kerala weather, seasonal attractions, route tips, and local food.</p>
+      
+      <div class="field">
+        <input type="text" name="question" id="aiQuestionInput" class="ai-question-input" maxlength="300" placeholder="e.g. Is Munnar good in June?" value="{{ answer.q|default:'' }}" required autocomplete="off">
+      </div>
+
+      <div class="ai-suggested-row">
+        <button type="button" class="ai-prompt-chip" onclick="askPreset('Is Munnar good in June?')">Is Munnar good in June?</button>
+        <button type="button" class="ai-prompt-chip" onclick="askPreset('Best time to visit Athirappilly?')">Best time to visit Athirappilly?</button>
+        <button type="button" class="ai-prompt-chip" onclick="askPreset('Houseboat cost in Alappuzha?')">Houseboat cost in Alappuzha?</button>
+      </div>
+
+      <button type="submit" id="btnAskAI" class="btn-ask-ai">
+        <svg class="ai-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        <span class="btn-text">Ask AI</span>
+      </button>
+
+      <!-- AI Answer Box -->
+      <div id="aiAnswerContainer">
+        {% if answer %}
+          <div class="ai-answer-card">
+            <div class="ai-answer-header">
+              <div class="ai-sparkle-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path>
+                </svg>
+              </div>
+              <div class="ai-question-badge">
+                {{ answer.q }}
+              </div>
+            </div>
+            <div class="ai-answer-body">
+              {{ answer.a|md }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </form>
+
+    <!-- Recent Itineraries History -->
+    <div class="card">
+      <h3 style="margin-top:0; margin-bottom:12px; font-family:var(--font-heading);">Your recent plans</h3>
+      {% for it in history %}
+        <p style="margin-bottom:8px;">
+          <a href="{% url 'itinerary_detail' it.pk %}" style="font-weight:600; text-decoration:none; color:#101d3a;">
+            {{ it.days }} days in {{ it.destination }}
+          </a>
+          <span class="small muted">· {{ it.created_at|date:"d M" }}</span>
+        </p>
+      {% empty %}
+        <p class="muted">Nothing yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+  function askPreset(text) {
+    const input = document.getElementById('aiQuestionInput');
+    if (input) {
+      input.value = text;
+      input.focus();
+      handleQuestionSubmit();
+    }
+  }
+
+  function formatAIResponse(text) {
+    if (!text) return '';
+    // Format bold **text** -> <strong>text</strong>
+    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Format *italic* -> <em>italic</em>
+    formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // Convert line breaks into paragraphs
+    const paragraphs = formatted.split(/\n\s*\n/).map(p => {
+      const trimmed = p.trim();
+      if (!trimmed) return '';
+      // If lines start with bullets
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        const items = trimmed.split(/\n/).map(li => `<li>${li.replace(/^[-*]\s*/, '')}</li>`).join('');
+        return `<ul>${items}</ul>`;
+      }
+      return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+    }).join('');
+    return paragraphs;
+  }
+
+  function handleQuestionSubmit(e) {
+    if (e) e.preventDefault();
+    const form = document.getElementById('aiQuestionForm');
+    const input = document.getElementById('aiQuestionInput');
+    const btn = document.getElementById('btnAskAI');
+    const container = document.getElementById('aiAnswerContainer');
+    if (!input || !input.value.trim() || !btn) return;
+
+    const question = input.value.trim();
+    const originalBtnHTML = btn.innerHTML;
+
+    // Set button to Thinking state
+    btn.classList.add('is-thinking');
+    btn.innerHTML = '<span class="thinking-spinner"></span> Thinking<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>';
+
+    const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    formData.append('question', question);
+
+    fetch(form.action || window.location.href, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      },
+      body: formData
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Network error');
+      return res.json();
+    })
+    .then(data => {
+      btn.classList.remove('is-thinking');
+      btn.innerHTML = originalBtnHTML;
+      if (container && data.a) {
+        container.innerHTML = `
+          <div class="ai-answer-card">
+            <div class="ai-answer-header">
+              <div class="ai-sparkle-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path>
+                </svg>
+              </div>
+              <div class="ai-question-badge">
+                ${data.q || question}
+              </div>
+            </div>
+            <div class="ai-answer-body">
+              ${formatAIResponse(data.a)}
+            </div>
+          </div>
+        `;
+      }
+    })
+    .catch(err => {
+      console.warn('AJAX error, falling back to standard submit:', err);
+      // Fallback: standard submit if fetch fails
+      form.removeEventListener('submit', handleQuestionSubmit);
+      form.submit();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const qForm = document.getElementById('aiQuestionForm');
+    if (qForm) {
+      qForm.addEventListener('submit', handleQuestionSubmit);
+    }
+
+    const itForm = document.getElementById('itineraryForm');
+    if (itForm) {
+      itForm.addEventListener('submit', function (e) {
+        const btn = document.getElementById('btnGenerateItinerary');
+        if (btn) {
+          btn.classList.add('is-thinking');
+          btn.innerHTML = '<span class="thinking-spinner"></span> Thinking... Generating plan';
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}
