@@ -19,8 +19,22 @@
         <img src="{% static 'img/nav_logo.png' %}" alt="Beyond Destination Travel Agency" class="nav-brand-img">
       </a>
 
+      <!-- Mobile Hamburger Toggle Button -->
+      <button class="nav-mobile-toggle" id="navToggleBtn" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <svg class="hamburger-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg class="close-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
       <!-- Right Navigation Links -->
-      <nav class="nav-links-row" aria-label="Main Navigation">
+      <nav class="nav-links-row" id="navLinksRow" aria-label="Main Navigation">
+        <!-- 1. Home -->
         <a class="nav-item {% if request.resolver_match.url_name == 'home' %}active-pill{% endif %}" href="{% url 'home' %}">
           <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -29,7 +43,8 @@
           <span>Home</span>
         </a>
 
-        <a class="nav-item {% if request.resolver_match.url_name == 'destinations' and not 'manage' in request.path %}active-pill{% endif %}" href="{% url 'destinations' %}">
+        <!-- 2. Destinations -->
+        <a class="nav-item {% if request.resolver_match.url_name in 'destinations,destination_detail' and not 'manage' in request.path %}active-pill{% endif %}" href="{% url 'destinations' %}">
           <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
             <circle cx="12" cy="10" r="3"></circle>
@@ -37,6 +52,7 @@
           <span>Destinations</span>
         </a>
 
+        <!-- 3. Packages -->
         <a class="nav-item {% if request.resolver_match.url_name == 'packages' and not 'manage' in request.path %}active-pill{% endif %}" href="{% url 'packages' %}">
           <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -46,7 +62,7 @@
           <span>Packages</span>
         </a>
 
-        <!-- E-commerce Style Wishlist with Live Counter Badge -->
+        <!-- 4. Wishlist with Small Red Notification Badge -->
         <a class="nav-item nav-wishlist-item {% if request.resolver_match.url_name == 'wishlist' %}active-pill{% endif %}" href="{% url 'wishlist' %}" title="View Wishlist">
           <span class="nav-wishlist-icon-wrap">
             <svg viewBox="0 0 24 24" class="nav-icon nav-heart-icon" fill="none" stroke="currentColor" stroke-width="2">
@@ -57,14 +73,15 @@
           <span>Wishlist</span>
         </a>
 
-        <!-- Smart Travel Tools -->
-        <a class="nav-item {% if 'tools' in request.resolver_match.url_name or 'tools' in request.path %}active-pill{% endif %}" href="{% url 'tools' %}" title="Smart Travel Tools">
+        <!-- 5. Smart Tools with Vibrant Blue Gradient Background -->
+        <a class="nav-item nav-item-smart-tools {% if 'tools' in request.resolver_match.url_name or 'tools' in request.path %}active-pill{% endif %}" href="{% url 'tools' %}" title="Smart Travel Tools">
           <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
           </svg>
           <span>Smart Tools</span>
         </a>
 
+        <!-- 6. Bookings & 7. AI Planner / Admin Dashboard -->
         {% if user.is_authenticated %}
           {% if user.is_staff %}
             <a class="nav-item {% if request.resolver_match.url_name == 'admin_bookings' %}active-pill{% endif %}" href="{% url 'admin_bookings' %}">
@@ -104,18 +121,33 @@
             </a>
           {% endif %}
 
-          <form method="post" action="{% url 'logout' %}" style="display:inline">
+          <!-- Subtle Vertical Divider before Logout -->
+          <div class="nav-divider" aria-hidden="true"></div>
+
+          <!-- 8. Logout -->
+          <form method="post" action="{% url 'logout' %}" style="display:inline; margin:0;">
             {% csrf_token %}
-            <button class="nav-item nav-logout-btn" type="submit">
+            <button class="nav-item nav-logout-btn" type="submit" title="Log out">
               <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
               </svg>
-              <span>Log out ({{ user.username }})</span>
+              <span>Logout ({{ user.username }})</span>
             </button>
           </form>
         {% else %}
-          <a class="nav-item" href="{% url 'login' %}">Log in</a>
+          <!-- Subtle Vertical Divider before Login / Signup -->
+          <div class="nav-divider" aria-hidden="true"></div>
+
+          <a class="nav-item nav-login-btn" href="{% url 'login' %}">
+            <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span>Log in</span>
+          </a>
           <a class="btn-nav-signup" href="{% url 'register' %}">Sign up</a>
         {% endif %}
       </nav>
@@ -384,6 +416,22 @@
     document.addEventListener('DOMContentLoaded', function() {
       if (window.WishlistManager) {
         window.WishlistManager.init();
+      }
+
+      // Mobile Navbar Menu Toggle
+      const toggleBtn = document.getElementById('navToggleBtn');
+      const navRow = document.getElementById('navLinksRow');
+      if (toggleBtn && navRow) {
+        toggleBtn.addEventListener('click', function() {
+          const isOpen = navRow.classList.toggle('nav-mobile-open');
+          toggleBtn.setAttribute('aria-expanded', isOpen);
+          const ham = toggleBtn.querySelector('.hamburger-icon');
+          const close = toggleBtn.querySelector('.close-icon');
+          if (ham && close) {
+            ham.style.display = isOpen ? 'none' : 'block';
+            close.style.display = isOpen ? 'block' : 'none';
+          }
+        });
       }
     });
   </script>
